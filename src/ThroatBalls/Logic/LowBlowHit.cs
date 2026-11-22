@@ -1,7 +1,7 @@
 namespace ThroatBalls.Logic
 {
     /// <summary>The spot a hit landed on.</summary>
-    public enum Zone
+    public enum HitZone
     {
         None,
         Throat,
@@ -112,9 +112,9 @@ namespace ThroatBalls.Logic
     /// <summary>Outcome of one hit: the zone it counts for, or why it does not.</summary>
     public readonly struct LowBlowResult
     {
-        public LowBlowResult(Zone zone, LowBlowRejection rejection, Zone nearestZone, float zoneDistance, float angleFromFront)
+        public LowBlowResult(HitZone zone, LowBlowRejection rejection, HitZone nearestZone, float zoneDistance, float angleFromFront)
         {
-            Zone = zone;
+            HitZone = zone;
             Rejection = rejection;
             NearestZone = nearestZone;
             ZoneDistance = zoneDistance;
@@ -122,12 +122,12 @@ namespace ThroatBalls.Logic
         }
 
         /// <summary>The zone the hit counts for; None when refused.</summary>
-        public Zone Zone { get; }
+        public HitZone HitZone { get; }
 
         public LowBlowRejection Rejection { get; }
 
         /// <summary>The zone whose center is nearest to the contact (also for refused hits, for the log).</summary>
-        public Zone NearestZone { get; }
+        public HitZone NearestZone { get; }
 
         /// <summary>Distance from the contact to the nearest zone's center (m); NaN before the zone check.</summary>
         public float ZoneDistance { get; }

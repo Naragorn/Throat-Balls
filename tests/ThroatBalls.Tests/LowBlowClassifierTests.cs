@@ -66,7 +66,7 @@ namespace ThroatBalls.Tests
             var result = Classify(Punch(ThroatCenter()));
 
             Assert.True(result.IsHit);
-            Assert.Equal(Zone.Throat, result.Zone);
+            Assert.Equal(HitZone.Throat, result.HitZone);
             Assert.Equal(LowBlowRejection.None, result.Rejection);
             Assert.Equal(0f, result.ZoneDistance, 4);
         }
@@ -77,7 +77,7 @@ namespace ThroatBalls.Tests
             var result = Classify(Punch(GroinCenter()));
 
             Assert.True(result.IsHit);
-            Assert.Equal(Zone.Groin, result.Zone);
+            Assert.Equal(HitZone.Groin, result.HitZone);
         }
 
         [Fact]
@@ -86,9 +86,9 @@ namespace ThroatBalls.Tests
             var inside = Classify(Punch(ThroatCenter() + new Vec3(0f, 0f, 0.069f)));
             var outside = Classify(Punch(ThroatCenter() + new Vec3(0f, 0f, 0.071f)));
 
-            Assert.Equal(Zone.Throat, inside.Zone);
+            Assert.Equal(HitZone.Throat, inside.HitZone);
             Assert.Equal(LowBlowRejection.OutsideZones, outside.Rejection);
-            Assert.Equal(Zone.Throat, outside.NearestZone);
+            Assert.Equal(HitZone.Throat, outside.NearestZone);
             Assert.Equal(0.071f, outside.ZoneDistance, 3);
         }
 
@@ -99,8 +99,8 @@ namespace ThroatBalls.Tests
 
             Assert.False(result.IsHit);
             Assert.Equal(LowBlowRejection.OutsideZones, result.Rejection);
-            Assert.Equal(Zone.None, result.Zone);
-            Assert.NotEqual(Zone.None, result.NearestZone);
+            Assert.Equal(HitZone.None, result.HitZone);
+            Assert.NotEqual(HitZone.None, result.NearestZone);
         }
 
         [Fact]
@@ -157,7 +157,7 @@ namespace ThroatBalls.Tests
             var settings = Settings();
             settings.MenOnly = false;
 
-            Assert.Equal(Zone.Groin, LowBlowClassifier.Classify(input, settings).Zone);
+            Assert.Equal(HitZone.Groin, LowBlowClassifier.Classify(input, settings).HitZone);
         }
 
         [Theory]
@@ -216,7 +216,7 @@ namespace ThroatBalls.Tests
             settings.ThroatEnabled = false;
 
             Assert.Equal(LowBlowRejection.ZoneTurnedOff, LowBlowClassifier.Classify(Punch(ThroatCenter()), settings).Rejection);
-            Assert.Equal(Zone.Groin, LowBlowClassifier.Classify(Punch(GroinCenter()), settings).Zone);
+            Assert.Equal(HitZone.Groin, LowBlowClassifier.Classify(Punch(GroinCenter()), settings).HitZone);
         }
 
         [Fact]
@@ -227,8 +227,8 @@ namespace ThroatBalls.Tests
 
             var groin = LowBlowClassifier.Classify(Punch(GroinCenter()), settings);
             Assert.Equal(LowBlowRejection.ZoneTurnedOff, groin.Rejection);
-            Assert.Equal(Zone.Groin, groin.NearestZone);
-            Assert.Equal(Zone.Throat, LowBlowClassifier.Classify(Punch(ThroatCenter()), settings).Zone);
+            Assert.Equal(HitZone.Groin, groin.NearestZone);
+            Assert.Equal(HitZone.Throat, LowBlowClassifier.Classify(Punch(ThroatCenter()), settings).HitZone);
         }
 
         [Fact]
@@ -240,7 +240,7 @@ namespace ThroatBalls.Tests
             groin.ThroatHasMetal = true;
 
             Assert.Equal(LowBlowRejection.MetalArmor, Classify(throat).Rejection);
-            Assert.Equal(Zone.Groin, Classify(groin).Zone);
+            Assert.Equal(HitZone.Groin, Classify(groin).HitZone);
         }
 
         [Fact]
@@ -252,7 +252,7 @@ namespace ThroatBalls.Tests
             throat.GroinHasMetal = true;
 
             Assert.Equal(LowBlowRejection.MetalArmor, Classify(groin).Rejection);
-            Assert.Equal(Zone.Throat, Classify(throat).Zone);
+            Assert.Equal(HitZone.Throat, Classify(throat).HitZone);
         }
 
         [Fact]
@@ -263,7 +263,7 @@ namespace ThroatBalls.Tests
             var settings = Settings();
             settings.MetalArmorProtects = false;
 
-            Assert.Equal(Zone.Groin, LowBlowClassifier.Classify(input, settings).Zone);
+            Assert.Equal(HitZone.Groin, LowBlowClassifier.Classify(input, settings).HitZone);
         }
 
         [Fact]
@@ -328,7 +328,7 @@ namespace ThroatBalls.Tests
             Assert.Equal(LowBlowRejection.OutsideZones, Classify(input).Rejection);
             var groin = Punch(GroinCenter());
             groin.HasNeck = false;
-            Assert.Equal(Zone.Groin, Classify(groin).Zone);
+            Assert.Equal(HitZone.Groin, Classify(groin).HitZone);
         }
 
         [Fact]
@@ -341,7 +341,7 @@ namespace ThroatBalls.Tests
             var result = Classify(input);
 
             Assert.Equal(LowBlowRejection.OutsideZones, result.Rejection);
-            Assert.Equal(Zone.None, result.NearestZone);
+            Assert.Equal(HitZone.None, result.NearestZone);
         }
     }
 }

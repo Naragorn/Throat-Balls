@@ -62,7 +62,7 @@ namespace ThroatBalls.Logic
         public static readonly ReactionState Idle = new ReactionState
         {
             Kind = ReactionKind.None,
-            LastZone = Zone.None,
+            LastZone = HitZone.None,
             LastZoneAt = float.NegativeInfinity,
         };
 
@@ -71,7 +71,7 @@ namespace ThroatBalls.Logic
         public float Until;
 
         /// <summary>The spot hit last by a single reaction, for the combo; None after a combo.</summary>
-        public Zone LastZone;
+        public HitZone LastZone;
 
         public float LastZoneAt;
 
@@ -119,9 +119,9 @@ namespace ThroatBalls.Logic
     /// </summary>
     public static class ReactionRules
     {
-        public static ReactionStep OnHit(ReactionState state, Zone zone, float now, ReactionSettings settings)
+        public static ReactionStep OnHit(ReactionState state, HitZone zone, float now, ReactionSettings settings)
         {
-            if (zone == Zone.None)
+            if (zone == HitZone.None)
             {
                 return new ReactionStep(state, ReactionAction.None);
             }
@@ -140,8 +140,8 @@ namespace ThroatBalls.Logic
                 return new ReactionStep(combo, ReactionAction.StartCombo);
             }
 
-            var kind = zone == Zone.Throat ? ReactionKind.Throat : ReactionKind.Groin;
-            var duration = zone == Zone.Throat ? settings.ThroatDuration : settings.GroinDuration;
+            var kind = zone == HitZone.Throat ? ReactionKind.Throat : ReactionKind.Groin;
+            var duration = zone == HitZone.Throat ? settings.ThroatDuration : settings.GroinDuration;
             var next = state;
             next.LastZone = zone;
             next.LastZoneAt = now;
@@ -173,18 +173,18 @@ namespace ThroatBalls.Logic
         }
 
         /// <summary>Whether a hit on <paramref name="second"/> after one on <paramref name="first"/> makes the combo.</summary>
-        public static bool CompletesCombo(Zone first, Zone second, ComboOrder order)
+        public static bool CompletesCombo(HitZone first, HitZone second, ComboOrder order)
         {
-            if (first == Zone.None || second == Zone.None || first == second)
+            if (first == HitZone.None || second == HitZone.None || first == second)
             {
                 return false;
             }
             switch (order)
             {
                 case ComboOrder.ThroatThenGroin:
-                    return first == Zone.Throat;
+                    return first == HitZone.Throat;
                 case ComboOrder.GroinThenThroat:
-                    return first == Zone.Groin;
+                    return first == HitZone.Groin;
                 default:
                     return true;
             }

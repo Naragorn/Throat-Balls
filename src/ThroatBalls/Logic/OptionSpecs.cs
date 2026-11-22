@@ -51,7 +51,7 @@ namespace ThroatBalls.Logic
         // ---- Combo -----------------------------------------------------------------
 
         public static readonly FloatOptionSpec ComboWindow =
-            new FloatOptionSpec("Combo Window", 1f, 10f, 0.5f, 4f, OptionUnit.Seconds);
+            new FloatOptionSpec("Time Between Hits", 1f, 10f, 0.5f, 4f, OptionUnit.Seconds);
 
         public static readonly FloatOptionSpec DownDuration =
             new FloatOptionSpec("Down Duration", 2f, 30f, 1f, 8f, OptionUnit.Seconds);

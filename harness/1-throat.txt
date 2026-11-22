@@ -1,0 +1,31 @@
+# A punch on the Adam's apple: he grabs his throat for Throat Duration, then fights on.
+# Refused: a punch on the chest (outside both zones), a slash on the throat (Blunt Only),
+# a punch from behind (Max Hit Angle). The contact point is the neck part moved 5 cm up and
+# 5 cm forward, the throat zone's center with the default offsets (BasHarness hit-npc at=).
+wait-level
+set-option ThroatBalls "Throat Balls Enabled" true
+set-option ThroatBalls "Debug Logging" true
+set-option ThroatBalls "Allowed Hits" BluntOnly
+set-option ThroatBalls "Metal Armor Protects" false
+set-option ThroatBalls "Men Only" true
+set-option ThroatBalls "Throat Duration" 3
+set-option ThroatBalls "Both Hits Take Him Down" true
+
+spawn-npc HumanMale distance=1.5 facing=0 brain=HumanDummy
+mark
+hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5
+expect-log [ThroatBalls] LOW BLOW
+expect-log | Throat start
+wait 0.8
+screenshot throat-hands of=npc distance=1.6 height=1.5 angle=0
+await-log 5 | Throat end (time up)
+
+mark
+hit-npc Torso section=Upper at=0,0,0.15 type=Blunt velocity=5
+expect-log | OutsideZones
+mark
+hit-npc Neck at=0,0.05,0.05 type=Slash velocity=5
+expect-log | HitNotAllowed
+expect-no-log | Throat start
+expect-no-log Exception
+quit

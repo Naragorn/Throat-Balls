@@ -112,6 +112,24 @@ namespace ThroatBalls.Logic
             }
         }
 
+        /// <summary>
+        /// Where a hand rests, from the hurt spot's center, in the NPC's own directions: X to its right, Y up,
+        /// Z forward. Both hands side by side, just in front of the spot so they lie on it rather than in it.
+        /// </summary>
+        public static Vec3 HandOffset(BodyTarget target, bool leftHand)
+        {
+            var side = leftHand ? -1f : 1f;
+            switch (target)
+            {
+                case BodyTarget.Throat:
+                    return new Vec3(side * 0.03f, 0f, 0.04f);
+                case BodyTarget.Groin:
+                    return new Vec3(side * 0.05f, 0f, 0.05f);
+                default:
+                    return Vec3.Zero;
+            }
+        }
+
         /// <summary>The voice line at the start (the game's dialog ids, present in every human male voice).</summary>
         public static string StartSound(ReactionKind kind)
         {

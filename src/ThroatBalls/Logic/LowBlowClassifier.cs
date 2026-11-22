@@ -12,7 +12,7 @@ namespace ThroatBalls.Logic
             var early = EarlyRejection(input, settings);
             if (early != LowBlowRejection.None)
             {
-                return Refused(early, Zone.None, float.NaN);
+                return Refused(early, HitZone.None, float.NaN);
             }
 
             var nearest = NearestZone(input, settings, out var distance, out var inside);
@@ -34,11 +34,11 @@ namespace ThroatBalls.Logic
             {
                 if (float.IsNaN(angle))
                 {
-                    return new LowBlowResult(Zone.None, LowBlowRejection.AttackAngleUndetermined, nearest, distance, angle);
+                    return new LowBlowResult(HitZone.None, LowBlowRejection.AttackAngleUndetermined, nearest, distance, angle);
                 }
                 if (angle > settings.MaxHitAngle)
                 {
-                    return new LowBlowResult(Zone.None, LowBlowRejection.NotFromTheFront, nearest, distance, angle);
+                    return new LowBlowResult(HitZone.None, LowBlowRejection.NotFromTheFront, nearest, distance, angle);
                 }
             }
             return new LowBlowResult(nearest, LowBlowRejection.None, nearest, distance, angle);
@@ -88,40 +88,40 @@ namespace ThroatBalls.Logic
         }
 
         /// <summary>The zone whose center is nearest to the contact, and whether the contact lies inside it.</summary>
-        private static Zone NearestZone(LowBlowInput input, LowBlowSettings settings, out float distance, out bool inside)
+        private static HitZone NearestZone(LowBlowInput input, LowBlowSettings settings, out float distance, out bool inside)
         {
-            var nearest = Zone.None;
+            var nearest = HitZone.None;
             distance = float.NaN;
             inside = false;
             if (input.HasNeck)
             {
                 var center = LowBlowZones.ThroatCenter(input.Neck, input.TargetForward, settings);
                 distance = Vec3.Distance(input.ContactPoint, center);
-                nearest = Zone.Throat;
+                nearest = HitZone.Throat;
                 inside = distance <= settings.ThroatZoneSize;
             }
             if (input.HasHips)
             {
                 var center = LowBlowZones.GroinCenter(input.Hips, input.TargetForward, settings);
                 var groin = Vec3.Distance(input.ContactPoint, center);
-                if (nearest == Zone.None || groin < distance)
+                if (nearest == HitZone.None || groin < distance)
                 {
                     distance = groin;
-                    nearest = Zone.Groin;
+                    nearest = HitZone.Groin;
                     inside = groin <= settings.GroinZoneSize;
                 }
             }
             return nearest;
         }
 
-        private static bool ZoneEnabled(Zone zone, LowBlowSettings settings)
+        private static bool ZoneEnabled(HitZone zone, LowBlowSettings settings)
         {
-            return zone == Zone.Throat ? settings.ThroatEnabled : settings.GroinEnabled;
+            return zone == HitZone.Throat ? settings.ThroatEnabled : settings.GroinEnabled;
         }
 
-        private static bool HasMetal(Zone zone, LowBlowInput input)
+        private static bool HasMetal(HitZone zone, LowBlowInput input)
         {
-            return zone == Zone.Throat ? input.ThroatHasMetal : input.GroinHasMetal;
+            return zone == HitZone.Throat ? input.ThroatHasMetal : input.GroinHasMetal;
         }
 
         /// <summary>Horizontal angle between where the NPC faces and where the attacker stands; NaN if unknown.</summary>
@@ -135,9 +135,9 @@ namespace ThroatBalls.Logic
             return Vec3.AngleDegrees(input.TargetForward.Flattened, toAttacker);
         }
 
-        private static LowBlowResult Refused(LowBlowRejection rejection, Zone nearest, float distance)
+        private static LowBlowResult Refused(LowBlowRejection rejection, HitZone nearest, float distance)
         {
-            return new LowBlowResult(Zone.None, rejection, nearest, distance, float.NaN);
+            return new LowBlowResult(HitZone.None, rejection, nearest, distance, float.NaN);
         }
     }
 }

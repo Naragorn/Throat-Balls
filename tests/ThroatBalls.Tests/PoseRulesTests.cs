@@ -127,6 +127,27 @@ namespace ThroatBalls.Tests
         }
 
         [Theory]
+        [InlineData(BodyTarget.Throat)]
+        [InlineData(BodyTarget.Groin)]
+        public void Hands_rest_side_by_side_in_front_of_the_spot(BodyTarget target)
+        {
+            var left = PoseRules.HandOffset(target, true);
+            var right = PoseRules.HandOffset(target, false);
+
+            Assert.True(left.X < 0f);
+            Assert.True(right.X > 0f);
+            Assert.Equal(-left.X, right.X, 4);
+            Assert.True(left.Z > 0f);
+            Assert.Equal(left.Z, right.Z, 4);
+        }
+
+        [Fact]
+        public void No_target_has_no_hand_offset()
+        {
+            Assert.Equal(Vec3.Zero, PoseRules.HandOffset(BodyTarget.None, true));
+        }
+
+        [Theory]
         [InlineData(ReactionKind.Throat, "grappled", "grappled")]
         [InlineData(ReactionKind.Groin, "hit", "heavybreath")]
         [InlineData(ReactionKind.Combo, "hit", "heavybreath")]

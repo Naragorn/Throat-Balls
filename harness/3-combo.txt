@@ -1,0 +1,49 @@
+# Throat, then groin within Time Between Hits: he grabs his groin and goes down for Down
+# Duration, then gets up. First Curl Up (animated), then Ragdoll (the game's knock-down).
+wait-level
+set-option ThroatBalls "Throat Balls Enabled" true
+set-option ThroatBalls "Debug Logging" true
+set-option ThroatBalls "Allowed Hits" BluntOnly
+set-option ThroatBalls "Metal Armor Protects" false
+set-option ThroatBalls "Both Hits Take Him Down" true
+set-option ThroatBalls "Hit Order" EitherOrder
+set-option ThroatBalls "Time Between Hits" 4
+set-option ThroatBalls "Down Duration" 8
+set-option ThroatBalls "Fall Style" CurlUp
+frame-rate 90
+
+spawn-npc HumanMale distance=1.5 facing=0 brain=HumanDummy
+record-start combo-curl fps=30 width=960 height=540 views=npc distance=2.2 rise=1.0 angle=60
+mark
+hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5
+expect-log | Throat start
+wait 1
+hit-npc Torso section=Lower at=0,-0.08,0.08 type=Blunt velocity=5
+expect-log | Combo start
+wait 3
+screenshot combo-curl-down of=npc distance=2 height=1.0 angle=60
+# A hit while he is down changes nothing.
+hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5
+expect-log hit ignored, he is down
+await-log 8 | Combo end (time up)
+wait 2
+record-stop
+expect-npc state Alive within=5
+
+# Ragdoll fall: he drops limp and gets up after Down Duration.
+set-option ThroatBalls "Fall Style" Ragdoll
+mark
+hit-npc Torso section=Lower at=0,-0.08,0.08 type=Blunt velocity=5
+expect-log | Groin start
+wait 0.5
+hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5
+expect-log | Combo start
+await-log 3 | down (ragdoll)
+expect-npc state Destabilized within=1
+wait 5
+expect-npc state Destabilized within=0.1
+await-log 6 | Combo end (time up)
+expect-npc state Alive within=20
+set-option ThroatBalls "Fall Style" CurlUp
+expect-no-log Exception
+quit

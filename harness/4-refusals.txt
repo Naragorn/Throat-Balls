@@ -1,0 +1,41 @@
+# Who and what does not react: a woman (Men Only), a second hit after Time Between Hits
+# (its own reaction, no combo), the mod turned off mid-reaction (he recovers at once).
+wait-level
+set-option ThroatBalls "Throat Balls Enabled" true
+set-option ThroatBalls "Debug Logging" true
+set-option ThroatBalls "Metal Armor Protects" false
+set-option ThroatBalls "Men Only" true
+set-option ThroatBalls "Time Between Hits" 1
+set-option ThroatBalls "Throat Duration" 1
+
+spawn-npc HumanFemale distance=1.5 facing=0 brain=HumanDummy
+mark
+hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5
+expect-log | NotMale
+set-option ThroatBalls "Men Only" false
+mark
+hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5
+expect-log | Throat start
+set-option ThroatBalls "Men Only" true
+
+spawn-npc HumanMale distance=1.5 angle=60 facing=0 brain=HumanDummy
+mark
+hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5
+expect-log | Throat start
+wait 1.5
+hit-npc Torso section=Lower at=0,-0.08,0.08 type=Blunt velocity=5
+expect-log | Groin start
+expect-no-log | Combo start
+
+set-option ThroatBalls "Groin Duration" 10
+mark
+hit-npc Torso section=Lower at=0,-0.08,0.08 type=Blunt velocity=5
+wait 1
+set-option ThroatBalls "Throat Balls Enabled" false
+expect-log end (mod turned off)
+set-option ThroatBalls "Throat Balls Enabled" true
+set-option ThroatBalls "Time Between Hits" 4
+set-option ThroatBalls "Throat Duration" 3
+set-option ThroatBalls "Groin Duration" 4
+expect-no-log Exception
+quit

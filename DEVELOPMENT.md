@@ -1,0 +1,118 @@
+# Throat Balls - development notes
+
+Everything about how the mod is built and tested: versions, the game APIs used and what is verified vs. assumed, how a hit and a reaction are decided, test status. The player-facing description and the Mod Menu reference are in [`README.md`](README.md); the spec is [`CLAUDE.md`](CLAUDE.md).
+
+## Status
+
+| Step | State |
+|---|---|
+| 1. Project, pure logic + unit tests, game glue, Mod Menu, scenarios | built 2026-11-22 on Windows. **Unit tests: 144/144 pass** (`dotnet test`; written first: the first run failed to compile with the logic missing, `artifacts/tests/red-before-logic.txt`, not committed). **Release build: 0 warnings, 0 errors** against the Windows install's `ThunderRoad.dll`. All five scenarios parse with BasHarness 1f678cf's parser (0 errors). |
+| 2. Headless runs | `harness/0-smoke.txt` .. `4-refusals.txt` written. **Not run**: BasHarness runs on Linux + Proton only. They need BasHarness 1f678cf (`hit-npc section=`, `at=`). |
+| 3. Headset | **Not done.** |
+
+Nothing in this repo has run inside the game yet. Every "verified" below means read in the decompiled DLL and compiled against it.
+
+## Versions
+
+| What | Version | Source |
+|---|---|---|
+| Game (Windows install) | `ThunderRoad.dll` 1.3.2, same as AchillesBAS | decompiled `C:\Steam\steamapps\common\Blade & Sorcery\BladeAndSorcery_Data\Managed\ThunderRoad.dll` with ilspycmd 9.1 on 2026-11-22 |
+| Catalog | the game's `StreamingAssets/Default/bas.jsondb` (voices, animations) | unzipped and read on 2026-11-22 |
+| Manifest `GameVersion` | `1.0.0.0` | as AchillesBAS (`ModManager` requires an exact match) |
+| Target framework | .NET Framework 4.7.2, C# 9 | as AchillesBAS |
+| Tests | net8.0, xunit 2.9.2 | |
+
+## API check
+
+### Verified in `ThunderRoad.dll` 1.3.2 (read and compiled against)
+
+| Used for | API | Notes |
+|---|---|---|
+| Hits | `EventManager.onCreatureHit (Creature, CollisionInstance, EventTime)` | `OnEnd` only for hits that did not kill, after the damage. |
+| Men only | `CreatureData.gender` (`None, Male, Female`) | The game itself picks male/female hurt sounds and the animator's femininity by it. |
+| Metal armor | `ItemModuleWardrobe.isMetal` of `Equipment.GetEquipmentOnPart(part)` | Exactly the game's `RagdollPart.HasMetalArmor`. `GetEquipmentOnPart` logs a warning for a part without `wearable`, so that is checked first. Groin: the thighs (`LeftLeg/RightLeg`, `Section.Upper`), whose channel holds the Pants, Skirt, Armor and Underwear layers (`ArmorStats`). Throat: the neck part. |
+| Body parts | `Ragdoll.GetPart(Neck)`, `Ragdoll.rootPart`, `GetPart(Torso, Lower)` | |
+| Attacker, unarmed | `sourceColliderGroup.collisionHandler.item.lastHandler.creature`, `.ragdollPart.ragdoll.creature`, `casterHand.mana.creature` | Same chain as AchillesBAS. Unarmed = a body part source, no item, no spell. |
+| Out of the fight | `SkillDiscombobulate.BrainToggle(creature, conscious)` (public static) | The game's stun: brain modules stop (hit reaction keeps running), AI tree stops, `brain.isUnconscious` set. The stun also zeroes `locomotion.moveDirection` every frame; so does this mod. |
+| Throat sway | `Creature.PlayAnimation("HumanStun")`, `StopAnimation()` | The stun skill's clip (start, loop, end). On the end, the brain comes back after 0.75 x the end clip, as `SkillDiscombobulate.EndStun` does. |
+| Hands to the spot | `ragdoll.ik.SetHandAnchor(side, transform)`, `SetHandWeight(side, pos, rot)`; clear with `SetHandAnchor(side, null)` | `IKControllerFIK` sets the target and weight 1/1; this mod then sets rotation weight 0 (position only). The game's bow, cast and defense AI use it on NPCs. |
+| Bent over, down | `Creature.SetAnimatorHeightRatio(h)`, `animator.SetFloat(Brain.hashInjured, 1)` | What `Burning` does to a burning NPC that drops. |
+| Ragdoll fall | `Ragdoll.SetState(Destabilized)`, `Brain.AddNoStandUpModifier / RemoveNoStandUpModifier` | The hold is a list without duplicates; re-added every frame as AchillesBAS does. |
+| Voice | `BrainModuleSpeak.Play(dialogId, abnormalNoise)` | Refuses while `brain.isUnconscious` (read once at its start); this mod lifts the flag around the call when it set it. Dialog ids `grappled`, `hit`, `heavybreath` are in all eight `HumanMale*` voices of the catalog. |
+| Drop weapons | `RagdollHand.TryRelease()` | |
+| Kill, despawn | `EventManager.onCreatureKill` (OnEnd), `onCreatureDespawn` (OnStart) | On death the brain is woken as the game's stun does (`WaitConditionAction` ends a stun when the NPC is killed and calls `EndStun`). |
+
+### Assumed - must be confirmed in the game
+
+| Assumption | Why it matters | How it shows |
+|---|---|---|
+| `ragdoll.rootPart` is the pelvis of a human NPC | The groin zone sits in front of and below it | Show Zones; `2-groin.txt` hits `Torso section=Lower` + offset and expects a groin hit |
+| The neck part's position is at the base of the neck, so +5 cm up and forward is the Adam's apple | Throat zone placement | Show Zones; `1-throat.txt` |
+| The NPC's IK works while the brain is off, and moves the hands to the anchors | Hands on throat and groin | Screenshots in `1-throat`, `2-groin`, film in `3-combo` |
+| A full-body dynamic clip would hide the animator's `Height`; so the groin and the combo play none | The bend and the fall | `2-groin` picture: bent over; if not, the Height route is wrong |
+| `Height` 0.6 bends him over, 0.2 + `Injured` lays him down (AchillesBAS measured 0.2 + Injured as its sitting/lying crawl pose) | Groin crouch, Curl Up | Pictures; Debug Logging |
+| The hips' wardrobe channel | Not used for the groin armor (if it were the torso's, a chest plate would shield the groin) | `SKIP`/`LOW BLOW` lines print `hips: <channel> [...]` with Debug Logging |
+| `impactVelocity` is the closing speed of a punch | Min Hit Speed default 1.5 m/s | Real punches in the headset with Debug Logging (`speed x.x m/s`) |
+
+## How a hit is decided
+
+Pure logic in `src/ThroatBalls/Logic/LowBlowClassifier.cs`, unit-tested. Checks in this order; the first failing one is the reason in the log (`SKIP | <npc> | <reason> | ...`):
+
+1. `SelfHit` - not logged.
+2. `NotPlayerVsNpc` - attacker must be the player, the target an NPC.
+3. `TargetDead`
+4. `NotMale` - with Men Only.
+5. `HitNotAllowed` - Allowed Hits: Blunt Only (damage type Blunt), Fists And Kicks Only (the player's own hand or foot), Any Hit.
+6. `TooSlow` - `impactVelocity` below Min Hit Speed.
+7. `OutsideZones` - the contact point is in neither sphere. Throat center = neck + Throat Forward Offset along the NPC's horizontal facing + Throat Height Offset up; groin center = hips + Groin Forward Offset + Groin Height Offset. The nearest zone is taken.
+8. `ZoneTurnedOff` - Throat Hits or Groin Hits off.
+9. `MetalArmor` - with Metal Armor Protects, metal on that spot.
+10. `AttackAngleUndetermined` / `NotFromTheFront` - the attacker's horizontal angle from the NPC's facing above Max Hit Angle (180 = no check).
+
+## How a reaction runs
+
+`ReactionRules` (pure, unit-tested), one state per NPC:
+
+| Situation | Action |
+|---|---|
+| Hit on one spot, no recent hit on the other | Start that spot's reaction for its duration |
+| Same spot while it still reacts | Extend: lasts at least its duration from now |
+| The other spot within Time Between Hits of the first (also after the first reaction ended), in an allowed Hit Order | Combo: down for Down Duration |
+| Other spot, combo off or wrong order or too late | Start the other spot's reaction (replaces the first) |
+| Any hit while down | Ignored |
+| Time up, or the mod turned off | End: everything given back |
+
+`PoseRules` (pure, unit-tested): the animator height over a reaction (bend to Groin Crouch Height in 0.3 s; the combo then down to Lying Height over Fall Time; up over Get Up Time at the end; the higher of the two curves, so short reactions never drop too far), the ragdoll moment (end of bend + fall), where the hands go, when weapons drop, the voice lines.
+
+`ReactionController` + `ReactionBody` (game side): Begin = voice, drop weapons, brain off, stun clip (throat only), IK hands. Each frame = height, Injured (Curl Up), ragdoll fall + hold (Ragdoll), no walking, groans. End = hands, height, Injured, hold back; brain on (after the stun clip's end for the throat). Death, despawn, unload: undo at once. Debug Logging: `LOW BLOW`, `SKIP`, `REACTION | <npc> | Throat start / end (time up)`, `HANDS`, `SOUND`.
+
+## Performance
+
+Per hit: one classification (a few vector operations, three wardrobe lookups). Per frame: nothing while nobody reacts; else one small state step per reacting NPC (no allocation: settings objects are kept and refilled). Show Zones (debug, off by default) walks the active creatures every frame. Not measured in the game.
+
+## Harness
+
+Scenarios (Linux, `tools/harness.sh`; one fresh prefix per run, files run in name order, smoke first):
+
+| File | Checks |
+|---|---|
+| `0-smoke.txt` | load lines, 30 options with categories and defaults, a live toggle, no exceptions |
+| `1-throat.txt` | throat punch: `LOW BLOW`, Throat start, picture of the hands, end after 3 s; chest punch `OutsideZones`; slash `HitNotAllowed` |
+| `2-groin.txt` | groin punch: Groin start, picture bent over, end after 4 s |
+| `3-combo.txt` | throat then groin: Combo start, film + picture down, a hit while down ignored, end, alive; Ragdoll: Destabilized, held, then up |
+| `4-refusals.txt` | woman refused, then reacts with Men Only off; second hit after the window starts its own reaction; mod off mid-reaction ends it |
+
+`hit-npc` raises the hit through `Creature.Damage` (no physics contact); the contact point is the part's position moved with `at=` (BasHarness 1f678cf, added for this mod).
+
+## Build
+
+```sh
+dotnet test                                                  # unit tests (no game needed)
+dotnet build src/ThroatBalls -c Release                      # mod in dist/ThroatBalls
+dotnet build src/ThroatBalls -c Release -p:DeployToGame=true # copy into the game's Mods folder
+tools/harness.sh                                             # headless scenarios via BasHarness (Linux)
+tools/deploy.sh                                              # both installs (Linux)
+# other install path:  -p:BasDir="/path/to/Blade & Sorcery"
+```
+
+Log: `Player.log` - all lines start with `[ThroatBalls]`.

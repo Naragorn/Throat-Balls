@@ -1,0 +1,22 @@
+# A punch between the legs: he bends over with his hands on his groin for Groin Duration.
+# The contact point is the lower torso part (the hips) moved 8 cm down and 8 cm forward, the
+# groin zone's center with the default offsets. If the mod's hips part (the ragdoll's root) is
+# not this part, the SKIP line names the distance to the groin zone.
+wait-level
+set-option ThroatBalls "Throat Balls Enabled" true
+set-option ThroatBalls "Debug Logging" true
+set-option ThroatBalls "Allowed Hits" BluntOnly
+set-option ThroatBalls "Metal Armor Protects" false
+set-option ThroatBalls "Groin Duration" 4
+set-option ThroatBalls "Drop Weapons" WhenTheyGoDown
+
+spawn-npc HumanMale distance=1.5 facing=0 brain=HumanDummy
+mark
+hit-npc Torso section=Lower at=0,-0.08,0.08 type=Blunt velocity=5
+expect-log [ThroatBalls] LOW BLOW
+expect-log | Groin start
+wait 1
+screenshot groin-bent of=npc distance=1.8 height=1.0 angle=60
+await-log 6 | Groin end (time up)
+expect-no-log Exception
+quit
