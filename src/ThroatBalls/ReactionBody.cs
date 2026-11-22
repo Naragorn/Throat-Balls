@@ -25,11 +25,12 @@ namespace ThroatBalls
             {
                 return;
             }
+            r.TreeWasRunning = brain.instance.updateTree;
             SkillDiscombobulate.BrainToggle(r.Creature, conscious: false);
             r.BrainOff = true;
         }
 
-        /// <summary>Brain back on now (despawn, death: the game's stun wakes a stunned NPC that died, too).</summary>
+        /// <summary>Brain back on now (despawn, death: the game's stun wakes a stunned NPC that died, too), with its tree as it was.</summary>
         public static void WakeNow(Reaction r)
         {
             if (!r.BrainOff)
@@ -40,6 +41,8 @@ namespace ThroatBalls
             if (r.Creature != null && r.Creature.brain != null && r.Creature.brain.instance != null)
             {
                 SkillDiscombobulate.BrainToggle(r.Creature, conscious: true);
+                // BrainToggle sets updateTree = true; give back what the brain had (HumanDummy runs no tree).
+                r.Creature.brain.instance.updateTree = r.TreeWasRunning;
             }
         }
 

@@ -8,10 +8,10 @@ Everything about how the mod is built and tested: versions, the game APIs used a
 |---|---|
 | 1. Project, pure logic + unit tests, game glue, Mod Menu, scenarios | built 2026-11-22 on Windows. **Unit tests: 169/169 pass** (`dotnet test`; written first each time: the first run failed to compile with the logic missing (110 errors), the chance tests failed to compile before the rolls existed (9 errors); logs in `artifacts/tests/`, not committed). **Release build: 0 warnings, 0 errors** against the Windows install's `ThunderRoad.dll`. All five scenarios parse with BasHarness 1f678cf's parser (0 errors). |
 | 1b. Chances (v0.2.0, Nadi 2026-11-22) | Groin Knockdown Chance (50 %), Both Hits Knockdown Chance (100 %), Throat and Groin Reaction Chance (100 %); 25 new unit tests (`ReactionChanceTests`, option specs). |
-| 2. Headless runs | `harness/0-smoke.txt` .. `4-refusals.txt` written. **Not run**: BasHarness runs on Linux + Proton only. They need BasHarness 1f678cf (`hit-npc section=`, `at=`). |
+| 2. Headless runs (fix: v0.2.1) | **5/5 pass** on Linux (2026-11-22, `artifacts/harness/20261122-204123`). The first run failed `3-combo` (4/5): after the brain woke, the HumanDummy fought, walked off and the next groin hit landed 0.30 m from the zone. Cause: `SkillDiscombobulate.BrainToggle(conscious: true)` sets `brain.instance.updateTree = true`, so a brain that ran no tree (HumanDummy: `updateTree` false in `Brain_HumanDummy.json`) came back fighting. Fix: the reaction keeps `updateTree` from before the stun and gives it back after the wake (`Reaction.TreeWasRunning`). `1-throat` and `3-combo` now check `expect-npc tree False` after each wake (red before the fix: `tree is 'True'`, green after). Needs BasHarness with `expect-npc tree` (2026-11-22). |
 | 3. Headset | **Not done.** |
 
-Nothing in this repo has run inside the game yet. Every "verified" below means read in the decompiled DLL and compiled against it.
+The headless runs are the only in-game evidence so far (no headset). Every other "verified" below means read in the decompiled DLL and compiled against it.
 
 ## Versions
 
@@ -34,7 +34,7 @@ Nothing in this repo has run inside the game yet. Every "verified" below means r
 | Metal armor | `ItemModuleWardrobe.isMetal` of `Equipment.GetEquipmentOnPart(part)` | Exactly the game's `RagdollPart.HasMetalArmor`. `GetEquipmentOnPart` logs a warning for a part without `wearable`, so that is checked first. Groin: the thighs (`LeftLeg/RightLeg`, `Section.Upper`), whose channel holds the Pants, Skirt, Armor and Underwear layers (`ArmorStats`). Throat: the neck part. |
 | Body parts | `Ragdoll.GetPart(Neck)`, `Ragdoll.rootPart`, `GetPart(Torso, Lower)` | |
 | Attacker, unarmed | `sourceColliderGroup.collisionHandler.item.lastHandler.creature`, `.ragdollPart.ragdoll.creature`, `casterHand.mana.creature` | Same chain as AchillesBAS. Unarmed = a body part source, no item, no spell. |
-| Out of the fight | `SkillDiscombobulate.BrainToggle(creature, conscious)` (public static) | The game's stun: brain modules stop (hit reaction keeps running), AI tree stops, `brain.isUnconscious` set. The stun also zeroes `locomotion.moveDirection` every frame; so does this mod. |
+| Out of the fight | `SkillDiscombobulate.BrainToggle(creature, conscious)` (public static) | The game's stun: brain modules stop (hit reaction keeps running), AI tree stops, `brain.isUnconscious` set. The stun also zeroes `locomotion.moveDirection` every frame; so does this mod. Waking sets `brain.instance.updateTree = true` whatever the brain had; the mod restores the value from before (seen in the harness 2026-11-22: a HumanDummy fought after the wake). |
 | Throat sway | `Creature.PlayAnimation("HumanStun")`, `StopAnimation()` | The stun skill's clip (start, loop, end). On the end, the brain comes back after 0.75 x the end clip, as `SkillDiscombobulate.EndStun` does. |
 | Hands to the spot | `ragdoll.ik.SetHandAnchor(side, transform)`, `SetHandWeight(side, pos, rot)`; clear with `SetHandAnchor(side, null)` | `IKControllerFIK` sets the target and weight 1/1; this mod then sets rotation weight 0 (position only). The game's bow, cast and defense AI use it on NPCs. |
 | Bent over, down | `Creature.SetAnimatorHeightRatio(h)`, `animator.SetFloat(Brain.hashInjured, 1)` | What `Burning` does to a burning NPC that drops. |
@@ -101,9 +101,9 @@ Scenarios (Linux, `tools/harness.sh`; one fresh prefix per run, files run in nam
 | File | Checks |
 |---|---|
 | `0-smoke.txt` | load lines, 34 options with categories and defaults (chances 100/100/50/100 %), a live toggle, no exceptions |
-| `1-throat.txt` | throat punch: `LOW BLOW`, Throat start, picture of the hands, end after 3 s; chest punch `OutsideZones`; slash `HitNotAllowed` |
+| `1-throat.txt` | throat punch: `LOW BLOW`, Throat start, picture of the hands, end after 3 s, brain back without a tree (HumanDummy); chest punch `OutsideZones`; slash `HitNotAllowed` |
 | `2-groin.txt` | groin punch at Groin Knockdown Chance 0 %: Groin start, picture bent over, end after 4 s; at 100 %: Down start (groin), picture down, end |
-| `3-combo.txt` | throat then groin: Down start (both hits), film + picture down, a hit while down ignored, end, alive; Ragdoll: Destabilized, held, then up |
+| `3-combo.txt` | throat then groin: Down start (both hits), film + picture down, a hit while down ignored, end, alive, no tree after the wake; Ragdoll: Destabilized, held, then up, no tree |
 | `4-refusals.txt` | woman refused, then reacts with Men Only off; second hit after the window starts its own reaction; mod off mid-reaction ends it |
 
 Every scenario but the smoke pins the four chances (reactions 100 %, groin knockdown 0 % unless the case tests it, both hits 100 %), so no run depends on a roll.

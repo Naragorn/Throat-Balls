@@ -19,6 +19,12 @@ namespace ThroatBalls
         /// <summary>This mod turned the brain off (it was on), so this mod turns it back on.</summary>
         public bool BrainOff;
 
+        /// <summary>
+        /// The brain ran its behaviour tree when this mod turned it off. The game's BrainToggle turns the tree on with
+        /// the brain, so a brain without a running tree (HumanDummy: BrainData updateTree false) would come back fighting.
+        /// </summary>
+        public bool TreeWasRunning;
+
         /// <summary>The game's stun clip runs (throat).</summary>
         public bool PlayedClip;
 

@@ -24,6 +24,9 @@ expect-log | Throat start
 wait 0.8
 screenshot throat-hands of=npc distance=1.6 height=1.5 angle=0
 await-log 5 | Throat end (time up)
+# The brain wakes after the stun clip's end; a HumanDummy must stay without its behaviour tree.
+wait 2
+expect-npc tree False within=0.1
 
 mark
 hit-npc Torso section=Upper at=0,0,0.15 type=Blunt velocity=5
