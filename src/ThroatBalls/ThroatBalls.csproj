@@ -1,0 +1,78 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Code mod DLL for Blade & Sorcery. Installed code mods target .NET Framework 4.7.2,
+    and the game rejects nullable metadata on ModOptions, so nullables stay disabled
+    (both found by the Heel of Achilles mod, AchillesBAS DEVELOPMENT.md).
+
+    Build:   dotnet build -c Release
+    Deploy:  dotnet build -c Release -p:DeployToGame=true
+    Game path: override with -p:BasDir="/path/to/Blade & Sorcery"
+  -->
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>ThroatBalls</AssemblyName>
+    <RootNamespace>ThroatBalls</RootNamespace>
+    <DebugType>portable</DebugType>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <ModFolderName>ThroatBalls</ModFolderName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <BasDir Condition="'$(BasDir)' == '' And '$(OS)' == 'Windows_NT'">C:\Steam\steamapps\common\Blade &amp; Sorcery</BasDir>
+    <BasDir Condition="'$(BasDir)' == ''">$(HOME)/.local/share/Steam/steamapps/common/Blade &amp; Sorcery</BasDir>
+    <BasManagedDir>$(BasDir)/BladeAndSorcery_Data/Managed</BasManagedDir>
+    <BasModsDir>$(BasDir)/BladeAndSorcery_Data/StreamingAssets/Mods</BasModsDir>
+    <DistDir>$(MSBuildThisFileDirectory)../../dist/$(ModFolderName)</DistDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ThunderRoad">
+      <HintPath>$(BasManagedDir)/ThunderRoad.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(BasManagedDir)/UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(BasManagedDir)/UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>$(BasManagedDir)/UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>$(BasManagedDir)/UnityEngine.AnimationModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="manifest.json" />
+  </ItemGroup>
+
+  <!-- Mod folder layout the game's ModManager expects: manifest.json + *.dll (+ .pdb). -->
+  <Target Name="PackageMod" AfterTargets="Build">
+    <ItemGroup>
+      <ModFiles Include="$(TargetPath);$(TargetDir)$(TargetName).pdb;$(MSBuildThisFileDirectory)manifest.json" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ModFiles)" DestinationFolder="$(DistDir)" SkipUnchangedFiles="true" />
+    <Message Importance="high" Text="Mod packaged: $(DistDir)" />
+  </Target>
+
+  <Target Name="DeployMod" AfterTargets="PackageMod" Condition="'$(DeployToGame)' == 'true'">
+    <Error Condition="!Exists('$(BasModsDir)')" Text="Mods folder not found: $(BasModsDir). Set -p:BasDir=..." />
+    <Copy SourceFiles="@(ModFiles)" DestinationFolder="$(BasModsDir)/$(ModFolderName)" />
+    <Message Importance="high" Text="Mod deployed: $(BasModsDir)/$(ModFolderName)" />
+  </Target>
+
+</Project>

@@ -1,0 +1,30 @@
+# Unity
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+*.user
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+.vs/
+.idea/
+*.unitypackage
+crashlytics-buildid.txt
+# Build output
+bin/
+*.dll
+!**/Plugins/**/*.dll
+
+# Packaged mod folder (build output)
+dist/
+artifacts/
+release/media/
+artifacts/
