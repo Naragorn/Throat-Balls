@@ -72,12 +72,12 @@ namespace ThroatBalls.Tests
         {
             var s = Settings();
 
-            Assert.Equal(1f, PoseRules.BodyHeight(ReactionKind.Combo, 0f, 8f, s), 4);
-            Assert.Equal(0.6f, PoseRules.BodyHeight(ReactionKind.Combo, PoseRules.BendTime, 8f, s), 4);
-            Assert.Equal(0.4f, PoseRules.BodyHeight(ReactionKind.Combo, PoseRules.BendTime + 0.5f, 7f, s), 4);
-            Assert.Equal(0.2f, PoseRules.BodyHeight(ReactionKind.Combo, PoseRules.BendTime + 1f, 6f, s), 4);
-            Assert.Equal(0.2f, PoseRules.BodyHeight(ReactionKind.Combo, 5f, 1.5f, s), 4);
-            Assert.Equal(1f, PoseRules.BodyHeight(ReactionKind.Combo, 8f, 0f, s), 4);
+            Assert.Equal(1f, PoseRules.BodyHeight(ReactionKind.Down, 0f, 8f, s), 4);
+            Assert.Equal(0.6f, PoseRules.BodyHeight(ReactionKind.Down, PoseRules.BendTime, 8f, s), 4);
+            Assert.Equal(0.4f, PoseRules.BodyHeight(ReactionKind.Down, PoseRules.BendTime + 0.5f, 7f, s), 4);
+            Assert.Equal(0.2f, PoseRules.BodyHeight(ReactionKind.Down, PoseRules.BendTime + 1f, 6f, s), 4);
+            Assert.Equal(0.2f, PoseRules.BodyHeight(ReactionKind.Down, 5f, 1.5f, s), 4);
+            Assert.Equal(1f, PoseRules.BodyHeight(ReactionKind.Down, 8f, 0f, s), 4);
         }
 
         [Fact]
@@ -85,14 +85,14 @@ namespace ThroatBalls.Tests
         {
             var s = Settings(FallStyle.Ragdoll);
 
-            Assert.Equal(0.6f, PoseRules.BodyHeight(ReactionKind.Combo, PoseRules.BendTime + 0.5f, 7f, s), 4);
-            Assert.Equal(1f, PoseRules.BodyHeight(ReactionKind.Combo, PoseRules.BendTime + 1f, 6f, s), 4);
+            Assert.Equal(0.6f, PoseRules.BodyHeight(ReactionKind.Down, PoseRules.BendTime + 0.5f, 7f, s), 4);
+            Assert.Equal(1f, PoseRules.BodyHeight(ReactionKind.Down, PoseRules.BendTime + 1f, 6f, s), 4);
         }
 
         [Theory]
-        [InlineData(ReactionKind.Combo, 1.29f, false)]
-        [InlineData(ReactionKind.Combo, 1.3f, true)]
-        [InlineData(ReactionKind.Combo, 5f, true)]
+        [InlineData(ReactionKind.Down, 1.29f, false)]
+        [InlineData(ReactionKind.Down, 1.3f, true)]
+        [InlineData(ReactionKind.Down, 5f, true)]
         [InlineData(ReactionKind.Groin, 5f, false)]
         [InlineData(ReactionKind.Throat, 5f, false)]
         [InlineData(ReactionKind.None, 5f, false)]
@@ -102,13 +102,13 @@ namespace ThroatBalls.Tests
         }
 
         [Theory]
-        [InlineData(DropWeapons.WhenTheyGoDown, ReactionKind.Combo, true)]
+        [InlineData(DropWeapons.WhenTheyGoDown, ReactionKind.Down, true)]
         [InlineData(DropWeapons.WhenTheyGoDown, ReactionKind.Groin, false)]
         [InlineData(DropWeapons.WhenTheyGoDown, ReactionKind.Throat, false)]
         [InlineData(DropWeapons.Always, ReactionKind.Throat, true)]
         [InlineData(DropWeapons.Always, ReactionKind.Groin, true)]
-        [InlineData(DropWeapons.Always, ReactionKind.Combo, true)]
-        [InlineData(DropWeapons.Never, ReactionKind.Combo, false)]
+        [InlineData(DropWeapons.Always, ReactionKind.Down, true)]
+        [InlineData(DropWeapons.Never, ReactionKind.Down, false)]
         [InlineData(DropWeapons.Never, ReactionKind.Groin, false)]
         [InlineData(DropWeapons.Always, ReactionKind.None, false)]
         public void Drop_weapons_setting_decides_per_reaction(DropWeapons drop, ReactionKind kind, bool drops)
@@ -119,7 +119,7 @@ namespace ThroatBalls.Tests
         [Theory]
         [InlineData(ReactionKind.Throat, BodyTarget.Throat)]
         [InlineData(ReactionKind.Groin, BodyTarget.Groin)]
-        [InlineData(ReactionKind.Combo, BodyTarget.Groin)]
+        [InlineData(ReactionKind.Down, BodyTarget.Groin)]
         [InlineData(ReactionKind.None, BodyTarget.None)]
         public void Hands_go_to_the_hurt_spot(ReactionKind kind, BodyTarget target)
         {
@@ -150,7 +150,7 @@ namespace ThroatBalls.Tests
         [Theory]
         [InlineData(ReactionKind.Throat, "grappled", "grappled")]
         [InlineData(ReactionKind.Groin, "hit", "heavybreath")]
-        [InlineData(ReactionKind.Combo, "hit", "heavybreath")]
+        [InlineData(ReactionKind.Down, "hit", "heavybreath")]
         [InlineData(ReactionKind.None, null, null)]
         public void Each_reaction_has_its_voice(ReactionKind kind, string start, string repeat)
         {

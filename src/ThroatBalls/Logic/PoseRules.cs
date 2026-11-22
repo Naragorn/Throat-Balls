@@ -51,14 +51,14 @@ namespace ThroatBalls.Logic
         /// </summary>
         public static float BodyHeight(ReactionKind kind, float elapsed, float remaining, PoseSettings settings)
         {
-            if (kind != ReactionKind.Groin && kind != ReactionKind.Combo)
+            if (kind != ReactionKind.Groin && kind != ReactionKind.Down)
             {
                 return 1f;
             }
             var crouch = settings.GroinCrouchHeight;
             var down = Lerp(1f, crouch, elapsed / BendTime);
             var low = crouch;
-            if (kind == ReactionKind.Combo)
+            if (kind == ReactionKind.Down)
             {
                 if (settings.FallStyle == FallStyle.Ragdoll)
                 {
@@ -78,7 +78,7 @@ namespace ThroatBalls.Logic
         /// <summary>The combo's NPC is on the ground from the end of the bend and the fall.</summary>
         public static bool IsDown(ReactionKind kind, float elapsed, PoseSettings settings)
         {
-            return kind == ReactionKind.Combo && elapsed >= BendTime + settings.FallTime - 1e-4f;
+            return kind == ReactionKind.Down && elapsed >= BendTime + settings.FallTime - 1e-4f;
         }
 
         public static bool DropsWeapons(ReactionKind kind, DropWeapons drop)
@@ -94,7 +94,7 @@ namespace ThroatBalls.Logic
                 case DropWeapons.Never:
                     return false;
                 default:
-                    return kind == ReactionKind.Combo;
+                    return kind == ReactionKind.Down;
             }
         }
 
@@ -105,7 +105,7 @@ namespace ThroatBalls.Logic
                 case ReactionKind.Throat:
                     return BodyTarget.Throat;
                 case ReactionKind.Groin:
-                case ReactionKind.Combo:
+                case ReactionKind.Down:
                     return BodyTarget.Groin;
                 default:
                     return BodyTarget.None;
@@ -138,7 +138,7 @@ namespace ThroatBalls.Logic
                 case ReactionKind.Throat:
                     return "grappled";
                 case ReactionKind.Groin:
-                case ReactionKind.Combo:
+                case ReactionKind.Down:
                     return "hit";
                 default:
                     return null;
@@ -153,7 +153,7 @@ namespace ThroatBalls.Logic
                 case ReactionKind.Throat:
                     return "grappled";
                 case ReactionKind.Groin:
-                case ReactionKind.Combo:
+                case ReactionKind.Down:
                     return "heavybreath";
                 default:
                     return null;

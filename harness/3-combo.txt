@@ -3,6 +3,11 @@
 wait-level
 set-option ThroatBalls "Throat Balls Enabled" true
 set-option ThroatBalls "Debug Logging" true
+# Chances pinned: a run must not depend on a roll.
+set-option ThroatBalls "Throat Reaction Chance" 1
+set-option ThroatBalls "Groin Reaction Chance" 1
+set-option ThroatBalls "Groin Knockdown Chance" 0
+set-option ThroatBalls "Both Hits Knockdown Chance" 1
 set-option ThroatBalls "Allowed Hits" BluntOnly
 set-option ThroatBalls "Metal Armor Protects" false
 set-option ThroatBalls "Both Hits Take Him Down" true
@@ -19,13 +24,13 @@ hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5
 expect-log | Throat start
 wait 1
 hit-npc Torso section=Lower at=0,-0.08,0.08 type=Blunt velocity=5
-expect-log | Combo start
+expect-log | Down start (both hits
 wait 3
 screenshot combo-curl-down of=npc distance=2 height=1.0 angle=60
 # A hit while he is down changes nothing.
 hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5
 expect-log hit ignored, he is down
-await-log 8 | Combo end (time up)
+await-log 8 | Down end (time up)
 wait 2
 record-stop
 expect-npc state Alive within=5
@@ -37,12 +42,12 @@ hit-npc Torso section=Lower at=0,-0.08,0.08 type=Blunt velocity=5
 expect-log | Groin start
 wait 0.5
 hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5
-expect-log | Combo start
+expect-log | Down start (both hits
 await-log 3 | down (ragdoll)
 expect-npc state Destabilized within=1
 wait 5
 expect-npc state Destabilized within=0.1
-await-log 6 | Combo end (time up)
+await-log 6 | Down end (time up)
 expect-npc state Alive within=20
 set-option ThroatBalls "Fall Style" CurlUp
 expect-no-log Exception

@@ -3,10 +3,14 @@ using Xunit;
 
 namespace ThroatBalls.Tests
 {
-    /// <summary>Every flow of the reaction state: single reactions, the combo in each order and window, the end.</summary>
+    /// <summary>
+    /// Every flow of the reaction state: single reactions, the combo in each order and window, the end.
+    /// The chance rolls are in <see cref="ReactionChanceTests"/>; here every reaction and the combo always
+    /// happen and a groin hit alone never takes him down, unless a test says otherwise.
+    /// </summary>
     public class ReactionRulesTests
     {
-        private static ReactionSettings Settings()
+        internal static ReactionSettings Settings()
         {
             return new ReactionSettings
             {
@@ -16,12 +20,16 @@ namespace ThroatBalls.Tests
                 ThroatDuration = 3f,
                 GroinDuration = 5f,
                 DownDuration = 8f,
+                ThroatReactionChance = 1f,
+                GroinReactionChance = 1f,
+                GroinKnockdownChance = 0f,
+                ComboKnockdownChance = 1f,
             };
         }
 
         private static ReactionStep Hit(ReactionState state, HitZone zone, float now, ReactionSettings settings = null)
         {
-            return ReactionRules.OnHit(state, zone, now, settings ?? Settings());
+            return ReactionRules.OnHit(state, zone, now, settings ?? Settings(), ReactionRolls.Lowest);
         }
 
         [Fact]
@@ -100,7 +108,7 @@ namespace ThroatBalls.Tests
             var step = Hit(throat, HitZone.Groin, 13.5f);
 
             Assert.Equal(ReactionAction.StartCombo, step.Action);
-            Assert.Equal(ReactionKind.Combo, step.Next.Kind);
+            Assert.Equal(ReactionKind.Down, step.Next.Kind);
             Assert.Equal(13.5f, step.Next.StartedAt);
             Assert.Equal(21.5f, step.Next.Until);
             Assert.Equal(HitZone.None, step.Next.LastZone);

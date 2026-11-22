@@ -22,6 +22,7 @@ Blade & Sorcery (VR) mod built against the game's own `ThunderRoad.dll` (Unity +
 - **Throat**: hands to the throat, the game's stun sway, gagging, out of the fight for **Throat Duration** (3 s).
 - **Groin**: hands to the groin, bent over (**Groin Crouch Height**), groaning, out of the fight for **Groin Duration** (4 s).
 - **Both one after the other** within **Time Between Hits** (4 s, counted from the first hit, also after its reaction ended; **Hit Order** either, or a fixed order): hands to the groin, down to the ground for **Down Duration** (8 s), then up again. **Fall Style**: Curl Up (animated: the game's injured lying pose, hands kept at the groin) or Ragdoll (the game's knock-down, gets up by itself). Hits while down change nothing.
+- **Groin alone can take him down too** (Nadi, 2026-11-22: "in die eier schlagen/treten alleine kann männer auch zu boden gehen lassen. 50% chance. throat balls 100%. chance einstellbar für alles"): **Groin Knockdown Chance** (50 %), rolled on every groin hit that gets to him; **Both Hits Knockdown Chance** (100 %); **Throat Reaction Chance** and **Groin Reaction Chance** (100 %) gate the single reactions. A hit that is shrugged off still counts as the first of both hits; a missed both-hits roll gives the second hit its own reaction. Going down from the groin alone looks the same as from both hits (Down Duration, Fall Style).
 - The same spot again while it reacts makes it last longer. **Drop Weapons**: when they go down (default), always, never; a hand that still holds something stays in the animation.
 - Voice: the game's own dialogs of the NPC's voice (`grappled` for the throat, `hit` then `heavybreath` for the groin), repeated every **Groan Interval**.
 
@@ -29,7 +30,7 @@ Blade & Sorcery (VR) mod built against the game's own `ThunderRoad.dll` (Unity +
 
 ## Mod Menu (required)
 
-- Every option in the Mod Menu: categories "Throat Balls", "Throat", "Groin", "Both Hits", "Debug". No magic numbers in code (the 0.3 s bend is a reflex constant in `PoseRules`, the hand placement offsets too).
+- Every option in the Mod Menu: categories "Throat Balls", "Throat", "Groin", "Going Down", "Debug". No magic numbers in code (the 0.3 s bend is a reflex constant in `PoseRules`, the hand placement offsets too).
 - Option names unique per mod; an enum default must be the first entry; float value lists from `Logic/OptionSpecs` (decimal builder).
 - Live: a changed value applies at once. Turning the mod off mid-reaction ends every reaction at once and gives everything back.
 - Debug: Debug Logging (every judged hit with its reason, every reaction start/end, armor worn at the spot) and Show Zones (the two zones as colored spheres, hit markers).

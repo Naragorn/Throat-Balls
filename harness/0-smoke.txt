@@ -3,7 +3,7 @@
 # Run: tools/harness.sh harness/0-smoke.txt
 # Checks the defaults, so it must be the first scenario of a run (fresh prefix).
 wait-level
-expect-log [ModManager][ModOption][ThroatBalls] Loaded 30 ModOptions
+expect-log [ModManager][ModOption][ThroatBalls] Loaded 34 ModOptions
 expect-log [ThroatBalls] Loaded Throat Balls
 expect-log [ModManager][ThunderScript][ThroatBalls] Loaded ThunderScript: ThroatBalls.ThroatBallsScript
 expect-log [ThroatBalls] Enabled, listening to EventManager.onCreatureHit
@@ -18,24 +18,28 @@ option-exists ThroatBalls "Drop Weapons" category="Throat Balls" save=true
 option-exists ThroatBalls "Sounds" category="Throat Balls" type=Boolean save=true
 option-exists ThroatBalls "Groan Interval" category="Throat Balls" type=Single save=true
 option-exists ThroatBalls "Throat Hits" category="Throat" type=Boolean save=true
+option-exists ThroatBalls "Throat Reaction Chance" category="Throat" type=Single save=true
 option-exists ThroatBalls "Throat Duration" category="Throat" type=Single save=true
 option-exists ThroatBalls "Throat Zone Size" category="Throat" type=Single save=true
 option-exists ThroatBalls "Throat Forward Offset" category="Throat" type=Single save=true
 option-exists ThroatBalls "Throat Height Offset" category="Throat" type=Single save=true
 option-exists ThroatBalls "Groin Hits" category="Groin" type=Boolean save=true
+option-exists ThroatBalls "Groin Reaction Chance" category="Groin" type=Single save=true
+option-exists ThroatBalls "Groin Knockdown Chance" category="Groin" type=Single save=true
 option-exists ThroatBalls "Groin Duration" category="Groin" type=Single save=true
 option-exists ThroatBalls "Groin Crouch Height" category="Groin" type=Single save=true
 option-exists ThroatBalls "Groin Zone Size" category="Groin" type=Single save=true
 option-exists ThroatBalls "Groin Forward Offset" category="Groin" type=Single save=true
 option-exists ThroatBalls "Groin Height Offset" category="Groin" type=Single save=true
-option-exists ThroatBalls "Both Hits Take Him Down" category="Both Hits" type=Boolean save=true
-option-exists ThroatBalls "Hit Order" category="Both Hits" save=true
-option-exists ThroatBalls "Time Between Hits" category="Both Hits" type=Single save=true
-option-exists ThroatBalls "Down Duration" category="Both Hits" type=Single save=true
-option-exists ThroatBalls "Fall Style" category="Both Hits" save=true
-option-exists ThroatBalls "Lying Height" category="Both Hits" type=Single save=true
-option-exists ThroatBalls "Fall Time" category="Both Hits" type=Single save=true
-option-exists ThroatBalls "Get Up Time" category="Both Hits" type=Single save=true
+option-exists ThroatBalls "Both Hits Take Him Down" category="Going Down" type=Boolean save=true
+option-exists ThroatBalls "Both Hits Knockdown Chance" category="Going Down" type=Single save=true
+option-exists ThroatBalls "Hit Order" category="Going Down" save=true
+option-exists ThroatBalls "Time Between Hits" category="Going Down" type=Single save=true
+option-exists ThroatBalls "Down Duration" category="Going Down" type=Single save=true
+option-exists ThroatBalls "Fall Style" category="Going Down" save=true
+option-exists ThroatBalls "Lying Height" category="Going Down" type=Single save=true
+option-exists ThroatBalls "Fall Time" category="Going Down" type=Single save=true
+option-exists ThroatBalls "Get Up Time" category="Going Down" type=Single save=true
 option-exists ThroatBalls "Debug Logging" category="Debug" type=Boolean save=true
 option-exists ThroatBalls "Show Zones" category="Debug" type=Boolean save=true
 
@@ -53,6 +57,10 @@ expect-option ThroatBalls "Time Between Hits" 4
 expect-option ThroatBalls "Down Duration" 8
 expect-option ThroatBalls "Hit Order" EitherOrder
 expect-option ThroatBalls "Fall Style" CurlUp
+expect-option ThroatBalls "Throat Reaction Chance" 1
+expect-option ThroatBalls "Groin Reaction Chance" 1
+expect-option ThroatBalls "Groin Knockdown Chance" 0.5
+expect-option ThroatBalls "Both Hits Knockdown Chance" 1
 expect-option ThroatBalls "Debug Logging" false
 
 # Live toggle

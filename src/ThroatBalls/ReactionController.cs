@@ -17,6 +17,9 @@ namespace ThroatBalls
         private readonly PoseSettings poseSettings = new PoseSettings();
         private readonly LowBlowSettings zoneSettings = new LowBlowSettings();
 
+        // [0, 1), so a 100 % chance always hits (UnityEngine.Random.value can return 1).
+        private readonly System.Random dice = new System.Random();
+
         public int Count => reactions.Count;
 
         public bool IsReacting(Creature creature)
@@ -33,16 +36,26 @@ namespace ThroatBalls
                 reactions[id] = r;
             }
             var before = r.State.Kind;
-            var step = ReactionRules.OnHit(r.State, zone, now, ModOptions.Fill(reactionSettings));
+            var rolls = new ReactionRolls((float)dice.NextDouble(), (float)dice.NextDouble(), (float)dice.NextDouble());
+            var step = ReactionRules.OnHit(r.State, zone, now, ModOptions.Fill(reactionSettings), rolls);
             r.State = step.Next;
             switch (step.Action)
             {
                 case ReactionAction.Start:
+                    Begin(r, now, before, string.Empty);
+                    break;
                 case ReactionAction.StartCombo:
-                    Begin(r, now, before);
+                    Begin(r, now, before, " (both hits, roll " + F2(rolls.Combo) + " < " + Percent(reactionSettings.ComboKnockdownChance) + ")");
+                    break;
+                case ReactionAction.StartGroinDown:
+                    Begin(r, now, before, " (groin, roll " + F2(rolls.Knockdown) + " < " + Percent(reactionSettings.GroinKnockdownChance) + ")");
                     break;
                 case ReactionAction.Extend:
                     ModLog.Verbose("REACTION | " + GameAdapters.Label(creature) + " | " + r.State.Kind + " longer, until +" + F(r.State.Until - now) + " s");
+                    break;
+                case ReactionAction.Shrugged:
+                    ModLog.Verbose("REACTION | " + GameAdapters.Label(creature) + " | " + zone + " hit shrugged off (roll " + F2(rolls.Reaction) + ", chance "
+                        + Percent(zone == HitZone.Throat ? reactionSettings.ThroatReactionChance : reactionSettings.GroinReactionChance) + ")");
                     break;
                 case ReactionAction.IgnoredWhileDown:
                     ModLog.Verbose("REACTION | " + GameAdapters.Label(creature) + " | " + zone + " hit ignored, he is down");
@@ -108,9 +121,9 @@ namespace ThroatBalls
             {
                 ReactionBody.SetHeight(r, PoseRules.BodyHeight(kind, elapsed, r.State.Until - now, poseSettings));
             }
-            var curled = kind == ReactionKind.Combo && poseSettings.FallStyle == FallStyle.CurlUp && elapsed > PoseRules.BendTime;
+            var curled = kind == ReactionKind.Down && poseSettings.FallStyle == FallStyle.CurlUp && elapsed > PoseRules.BendTime;
             ReactionBody.SetInjured(r, curled);
-            if (kind == ReactionKind.Combo && poseSettings.FallStyle == FallStyle.Ragdoll && PoseRules.IsDown(kind, elapsed, poseSettings))
+            if (kind == ReactionKind.Down && poseSettings.FallStyle == FallStyle.Ragdoll && PoseRules.IsDown(kind, elapsed, poseSettings))
             {
                 if (!r.KnockedDown)
                 {
@@ -128,7 +141,7 @@ namespace ThroatBalls
             }
         }
 
-        private void Begin(Reaction r, float now, ReactionKind before)
+        private void Begin(Reaction r, float now, ReactionKind before, string cause)
         {
             var kind = r.State.Kind;
             var creature = r.Creature;
@@ -146,10 +159,10 @@ namespace ThroatBalls
             ReactionBody.KnockOut(r);
             ReactionBody.SetStunClip(r, kind == ReactionKind.Throat);
             ReactionBody.SetHands(r, PoseRules.HandsTo(kind), ModOptions.Fill(zoneSettings));
-            ModLog.Verbose("REACTION | " + GameAdapters.Label(creature) + " | " + kind + " start"
+            ModLog.Verbose("REACTION | " + GameAdapters.Label(creature) + " | " + kind + " start" + cause
                 + (before != ReactionKind.None ? " (was " + before + ")" : string.Empty)
                 + " | " + F(r.State.Until - now) + " s | weapons " + (drops ? "dropped" : "kept")
-                + (kind == ReactionKind.Combo ? " | fall " + ModOptions.FallStyle : string.Empty));
+                + (kind == ReactionKind.Down ? " | fall " + ModOptions.FallStyle : string.Empty));
         }
 
         /// <summary>Normal end: everything back, the brain after the stun clip's end (as the game's stun ends).</summary>
@@ -244,5 +257,9 @@ namespace ThroatBalls
         }
 
         private static string F(float value) => value.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
+
+        private static string F2(float value) => value.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+
+        private static string Percent(float chance) => (chance * 100f).ToString("0", System.Globalization.CultureInfo.InvariantCulture) + " %";
     }
 }

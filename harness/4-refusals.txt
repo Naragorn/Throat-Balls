@@ -3,6 +3,11 @@
 wait-level
 set-option ThroatBalls "Throat Balls Enabled" true
 set-option ThroatBalls "Debug Logging" true
+# Chances pinned: a run must not depend on a roll.
+set-option ThroatBalls "Throat Reaction Chance" 1
+set-option ThroatBalls "Groin Reaction Chance" 1
+set-option ThroatBalls "Groin Knockdown Chance" 0
+set-option ThroatBalls "Both Hits Knockdown Chance" 1
 set-option ThroatBalls "Metal Armor Protects" false
 set-option ThroatBalls "Men Only" true
 set-option ThroatBalls "Time Between Hits" 1
@@ -25,7 +30,7 @@ expect-log | Throat start
 wait 1.5
 hit-npc Torso section=Lower at=0,-0.08,0.08 type=Blunt velocity=5
 expect-log | Groin start
-expect-no-log | Combo start
+expect-no-log | Down start (both hits
 
 set-option ThroatBalls "Groin Duration" 10
 mark

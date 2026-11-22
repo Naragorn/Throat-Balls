@@ -6,7 +6,8 @@ Everything about how the mod is built and tested: versions, the game APIs used a
 
 | Step | State |
 |---|---|
-| 1. Project, pure logic + unit tests, game glue, Mod Menu, scenarios | built 2026-11-22 on Windows. **Unit tests: 144/144 pass** (`dotnet test`; written first: the first run failed to compile with the logic missing, `artifacts/tests/red-before-logic.txt`, not committed). **Release build: 0 warnings, 0 errors** against the Windows install's `ThunderRoad.dll`. All five scenarios parse with BasHarness 1f678cf's parser (0 errors). |
+| 1. Project, pure logic + unit tests, game glue, Mod Menu, scenarios | built 2026-11-22 on Windows. **Unit tests: 169/169 pass** (`dotnet test`; written first each time: the first run failed to compile with the logic missing (110 errors), the chance tests failed to compile before the rolls existed (9 errors); logs in `artifacts/tests/`, not committed). **Release build: 0 warnings, 0 errors** against the Windows install's `ThunderRoad.dll`. All five scenarios parse with BasHarness 1f678cf's parser (0 errors). |
+| 1b. Chances (v0.2.0, Nadi 2026-11-22) | Groin Knockdown Chance (50 %), Both Hits Knockdown Chance (100 %), Throat and Groin Reaction Chance (100 %); 25 new unit tests (`ReactionChanceTests`, option specs). |
 | 2. Headless runs | `harness/0-smoke.txt` .. `4-refusals.txt` written. **Not run**: BasHarness runs on Linux + Proton only. They need BasHarness 1f678cf (`hit-npc section=`, `at=`). |
 | 3. Headset | **Not done.** |
 
@@ -73,13 +74,16 @@ Pure logic in `src/ThroatBalls/Logic/LowBlowClassifier.cs`, unit-tested. Checks 
 
 `ReactionRules` (pure, unit-tested), one state per NPC:
 
+Checked in this order for every counted hit. Each chance is a roll in [0, 1) (`System.Random.NextDouble`, as `UnityEngine.Random.value` can return 1) that hits below the chance, so 100 % always and 0 % never; the rolls are inputs of the pure logic, so every branch is unit-tested.
+
 | Situation | Action |
 |---|---|
-| Hit on one spot, no recent hit on the other | Start that spot's reaction for its duration |
-| Same spot while it still reacts | Extend: lasts at least its duration from now |
-| The other spot within Time Between Hits of the first (also after the first reaction ended), in an allowed Hit Order | Combo: down for Down Duration |
-| Other spot, combo off or wrong order or too late | Start the other spot's reaction (replaces the first) |
 | Any hit while down | Ignored |
+| The other spot within Time Between Hits of the first (also after the first reaction ended), in an allowed Hit Order, Both Hits Knockdown Chance hits | Down for Down Duration (`Down start (both hits ...)`) |
+| Otherwise: Throat or Groin Reaction Chance misses | Shrugged off; the hit still counts as the first of both hits |
+| Groin hit and Groin Knockdown Chance hits (every groin hit that gets to him rolls, also while doubled over) | Down for Down Duration (`Down start (groin ...)`) |
+| Same spot while it still reacts | Extend: lasts at least its duration from now |
+| Otherwise | Start that spot's reaction for its duration (replaces the other spot's) |
 | Time up, or the mod turned off | End: everything given back |
 
 `PoseRules` (pure, unit-tested): the animator height over a reaction (bend to Groin Crouch Height in 0.3 s; the combo then down to Lying Height over Fall Time; up over Get Up Time at the end; the higher of the two curves, so short reactions never drop too far), the ragdoll moment (end of bend + fall), where the hands go, when weapons drop, the voice lines.
@@ -96,11 +100,13 @@ Scenarios (Linux, `tools/harness.sh`; one fresh prefix per run, files run in nam
 
 | File | Checks |
 |---|---|
-| `0-smoke.txt` | load lines, 30 options with categories and defaults, a live toggle, no exceptions |
+| `0-smoke.txt` | load lines, 34 options with categories and defaults (chances 100/100/50/100 %), a live toggle, no exceptions |
 | `1-throat.txt` | throat punch: `LOW BLOW`, Throat start, picture of the hands, end after 3 s; chest punch `OutsideZones`; slash `HitNotAllowed` |
-| `2-groin.txt` | groin punch: Groin start, picture bent over, end after 4 s |
-| `3-combo.txt` | throat then groin: Combo start, film + picture down, a hit while down ignored, end, alive; Ragdoll: Destabilized, held, then up |
+| `2-groin.txt` | groin punch at Groin Knockdown Chance 0 %: Groin start, picture bent over, end after 4 s; at 100 %: Down start (groin), picture down, end |
+| `3-combo.txt` | throat then groin: Down start (both hits), film + picture down, a hit while down ignored, end, alive; Ragdoll: Destabilized, held, then up |
 | `4-refusals.txt` | woman refused, then reacts with Men Only off; second hit after the window starts its own reaction; mod off mid-reaction ends it |
+
+Every scenario but the smoke pins the four chances (reactions 100 %, groin knockdown 0 % unless the case tests it, both hits 100 %), so no run depends on a roll.
 
 `hit-npc` raises the hit through `Creature.Damage` (no physics contact); the contact point is the part's position moved with `at=` (BasHarness 1f678cf, added for this mod).
 

@@ -48,7 +48,21 @@ namespace ThroatBalls.Logic
         public static readonly FloatOptionSpec GroanInterval =
             new FloatOptionSpec("Groan Interval", 0f, 10f, 0.5f, 3f, OptionUnit.Seconds);
 
-        // ---- Combo -----------------------------------------------------------------
+        // ---- Chances (Nadi, 2026-11-22: groin alone 50 %, both hits 100 %, every chance adjustable) ----
+
+        public static readonly FloatOptionSpec ThroatReactionChance =
+            new FloatOptionSpec("Throat Reaction Chance", 0f, 1f, 0.05f, 1f, OptionUnit.Percent);
+
+        public static readonly FloatOptionSpec GroinReactionChance =
+            new FloatOptionSpec("Groin Reaction Chance", 0f, 1f, 0.05f, 1f, OptionUnit.Percent);
+
+        public static readonly FloatOptionSpec GroinKnockdownChance =
+            new FloatOptionSpec("Groin Knockdown Chance", 0f, 1f, 0.05f, 0.5f, OptionUnit.Percent);
+
+        public static readonly FloatOptionSpec ComboKnockdownChance =
+            new FloatOptionSpec("Both Hits Knockdown Chance", 0f, 1f, 0.05f, 1f, OptionUnit.Percent);
+
+        // ---- Going down ------------------------------------------------------------
 
         public static readonly FloatOptionSpec ComboWindow =
             new FloatOptionSpec("Time Between Hits", 1f, 10f, 0.5f, 4f, OptionUnit.Seconds);
@@ -79,6 +93,10 @@ namespace ThroatBalls.Logic
             GroinDuration,
             GroinCrouchHeight,
             GroanInterval,
+            ThroatReactionChance,
+            GroinReactionChance,
+            GroinKnockdownChance,
+            ComboKnockdownChance,
             ComboWindow,
             DownDuration,
             LyingHeight,

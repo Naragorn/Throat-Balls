@@ -13,8 +13,8 @@ namespace ThroatBalls.Logic
         /// <summary>Hands to the groin, bent over.</summary>
         Groin,
 
-        /// <summary>Both spots one after the other: hands to the groin, down on the ground.</summary>
-        Combo,
+        /// <summary>Hands to the groin, down on the ground: both spots one after the other, or a groin hit alone by chance.</summary>
+        Down,
     }
 
     /// <summary>Which order of the two hits makes the combo. Keep <see cref="EitherOrder"/> first (enum default).</summary>
@@ -38,7 +38,13 @@ namespace ThroatBalls.Logic
         /// <summary>The second spot within the combo window: down it goes.</summary>
         StartCombo,
 
-        /// <summary>A hit while it lies down from the combo changes nothing.</summary>
+        /// <summary>A groin hit alone took him down (Groin Knockdown Chance).</summary>
+        StartGroinDown,
+
+        /// <summary>The reaction roll missed: he shrugs it off (the hit still counts as the first of both hits).</summary>
+        Shrugged,
+
+        /// <summary>A hit while he is down changes nothing.</summary>
         IgnoredWhileDown,
 
         /// <summary>The reaction is over (time up, or the mod turned off).</summary>
@@ -54,6 +60,12 @@ namespace ThroatBalls.Logic
         public float ThroatDuration;
         public float GroinDuration;
         public float DownDuration;
+
+        // Chances, 0..1 (Nadi, 2026-11-22: groin alone 50 %, both hits 100 %, every chance adjustable).
+        public float ThroatReactionChance;
+        public float GroinReactionChance;
+        public float GroinKnockdownChance;
+        public float ComboKnockdownChance;
     }
 
     /// <summary>One NPC's reaction state; a plain value, replaced by every step.</summary>
@@ -113,38 +125,70 @@ namespace ThroatBalls.Logic
         public ReactionAction Action { get; }
     }
 
+    /// <summary>The three chance rolls of one hit, each a uniform value in [0, 1).</summary>
+    public readonly struct ReactionRolls
+    {
+        /// <summary>Rolls that hit every chance above zero (tests, and nothing random).</summary>
+        public static readonly ReactionRolls Lowest = new ReactionRolls(0f, 0f, 0f);
+
+        public ReactionRolls(float combo, float reaction, float knockdown)
+        {
+            Combo = combo;
+            Reaction = reaction;
+            Knockdown = knockdown;
+        }
+
+        /// <summary>Against Both Hits Knockdown Chance.</summary>
+        public float Combo { get; }
+
+        /// <summary>Against Throat or Groin Reaction Chance.</summary>
+        public float Reaction { get; }
+
+        /// <summary>Against Groin Knockdown Chance.</summary>
+        public float Knockdown { get; }
+    }
+
     /// <summary>
-    /// The reaction state machine: a hit on one spot starts its reaction; the other spot within the
-    /// combo window (counted from the first hit, also after its reaction ended) starts the combo.
+    /// The reaction state machine. A hit on one spot starts its reaction (Throat or Groin Reaction Chance; a miss
+    /// is shrugged off but still counts as the first of both hits). The other spot within the window (counted from
+    /// the first hit, also after its reaction ended) takes him down (Both Hits Knockdown Chance); a groin hit alone
+    /// can too (Groin Knockdown Chance, rolled only when the groin reaction happens).
     /// </summary>
     public static class ReactionRules
     {
-        public static ReactionStep OnHit(ReactionState state, HitZone zone, float now, ReactionSettings settings)
+        public static ReactionStep OnHit(ReactionState state, HitZone zone, float now, ReactionSettings settings, ReactionRolls rolls)
         {
             if (zone == HitZone.None)
             {
                 return new ReactionStep(state, ReactionAction.None);
             }
-            if (state.Kind == ReactionKind.Combo && now < state.Until)
+            if (state.Kind == ReactionKind.Down && now < state.Until)
             {
                 return new ReactionStep(state, ReactionAction.IgnoredWhileDown);
             }
             if (settings.ComboEnabled
                 && now - state.LastZoneAt <= settings.ComboWindow
-                && CompletesCombo(state.LastZone, zone, settings.ComboOrder))
+                && CompletesCombo(state.LastZone, zone, settings.ComboOrder)
+                && Hits(rolls.Combo, settings.ComboKnockdownChance))
             {
-                var combo = ReactionState.Idle;
-                combo.Kind = ReactionKind.Combo;
-                combo.StartedAt = now;
-                combo.Until = now + settings.DownDuration;
-                return new ReactionStep(combo, ReactionAction.StartCombo);
+                return new ReactionStep(Down(now, settings), ReactionAction.StartCombo);
+            }
+
+            var next = state;
+            next.LastZone = zone;
+            next.LastZoneAt = now;
+            var reactionChance = zone == HitZone.Throat ? settings.ThroatReactionChance : settings.GroinReactionChance;
+            if (!Hits(rolls.Reaction, reactionChance))
+            {
+                return new ReactionStep(next, ReactionAction.Shrugged);
+            }
+            if (zone == HitZone.Groin && Hits(rolls.Knockdown, settings.GroinKnockdownChance))
+            {
+                return new ReactionStep(Down(now, settings), ReactionAction.StartGroinDown);
             }
 
             var kind = zone == HitZone.Throat ? ReactionKind.Throat : ReactionKind.Groin;
             var duration = zone == HitZone.Throat ? settings.ThroatDuration : settings.GroinDuration;
-            var next = state;
-            next.LastZone = zone;
-            next.LastZoneAt = now;
             if (state.Kind == kind && now < state.Until)
             {
                 next.Until = Math.Max(state.Until, now + duration);
@@ -163,13 +207,28 @@ namespace ThroatBalls.Logic
             {
                 return new ReactionStep(state, ReactionAction.None);
             }
-            if (state.Kind == ReactionKind.Combo)
+            if (state.Kind == ReactionKind.Down)
             {
                 return new ReactionStep(ReactionState.Idle, ReactionAction.End);
             }
             var next = state;
             next.Kind = ReactionKind.None;
             return new ReactionStep(next, ReactionAction.End);
+        }
+
+        /// <summary>A roll in [0, 1) hits below the chance: 100 % always, 0 % never.</summary>
+        public static bool Hits(float roll, float chance)
+        {
+            return roll < chance;
+        }
+
+        private static ReactionState Down(float now, ReactionSettings settings)
+        {
+            var down = ReactionState.Idle;
+            down.Kind = ReactionKind.Down;
+            down.StartedAt = now;
+            down.Until = now + settings.DownDuration;
+            return down;
         }
 
         /// <summary>Whether a hit on <paramref name="second"/> after one on <paramref name="first"/> makes the combo.</summary>

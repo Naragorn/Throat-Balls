@@ -5,8 +5,9 @@ A Blade & Sorcery mod. Punch or kick a man in the throat or between the legs and
 ## How it works
 
 - **Throat:** hit him on the Adam's apple. He grabs his throat and gags for a few seconds.
-- **Groin:** hit him between the legs. He doubles over with his hands on his groin.
+- **Groin:** hit him between the legs. He doubles over with his hands on his groin. Half the time he goes down right away.
 - **Both, one after the other:** he grabs his groin and goes down. After a while he gets back up.
+- Every one of these has its own chance in the Mods menu.
 - Only men react, and only where no metal armor covers the spot. Leather and cloth don't protect.
 - By default only blunt hits count: fists, kicks, maces, pommels.
 - While he reacts, he doesn't fight back.
@@ -39,6 +40,7 @@ Open the book, go to **Mods**, pick **Throat Balls**. Changes apply at once.
 | Setting | Default | Range | What it does |
 |---|---|---|---|
 | Throat Hits | on | | Throat hits count |
+| Throat Reaction Chance | 100 % | 0–100 % | Chance a throat hit gets to him |
 | Throat Duration | 3 s | 1–15 s | How long he holds his throat |
 | Throat Zone Size | 7 cm | 3–15 cm | How big the throat spot is |
 | Throat Forward Offset | 5 cm | -5–15 cm | Moves the spot forward or back |
@@ -49,17 +51,20 @@ Open the book, go to **Mods**, pick **Throat Balls**. Changes apply at once.
 | Setting | Default | Range | What it does |
 |---|---|---|---|
 | Groin Hits | on | | Groin hits count |
+| Groin Reaction Chance | 100 % | 0–100 % | Chance a groin hit gets to him at all |
+| Groin Knockdown Chance | 50 % | 0–100 % | Chance a groin hit alone takes him down |
 | Groin Duration | 4 s | 1–15 s | How long he stays doubled over |
 | Groin Crouch Height | x0.6 | x0.3–x1 | How far he bends down |
 | Groin Zone Size | 9 cm | 3–20 cm | How big the groin spot is |
 | Groin Forward Offset | 8 cm | -5–20 cm | Moves the spot forward or back |
 | Groin Height Offset | -8 cm | -25–10 cm | Moves the spot up or down |
 
-**Both Hits**
+**Going Down** (both hits in a row, or a groin hit alone)
 
 | Setting | Default | Range | What it does |
 |---|---|---|---|
 | Both Hits Take Him Down | on | | Throat and groin in a row put him on the ground |
+| Both Hits Knockdown Chance | 100 % | 0–100 % | Chance both hits take him down |
 | Hit Order | Either Order | Either Order, Throat Then Groin, Groin Then Throat | Which hit must come first |
 | Time Between Hits | 4 s | 1–10 s | How soon the second hit must follow |
 | Down Duration | 8 s | 2–30 s | How long he stays down |

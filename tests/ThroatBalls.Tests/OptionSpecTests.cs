@@ -63,6 +63,23 @@ namespace ThroatBalls.Tests
             Assert.Equal("4 s", OptionSpecs.ComboWindow.Label(4f));
             Assert.Equal("-8 cm", OptionSpecs.GroinHeightOffset.Label(-0.08f));
             Assert.Equal("x0.6", OptionSpecs.GroinCrouchHeight.Label(0.6f));
+            Assert.Equal("50 %", OptionSpecs.GroinKnockdownChance.Label(0.5f));
+        }
+
+        [Fact]
+        public void Chances_default_as_asked()
+        {
+            // Nadi 2026-11-22: groin alone 50 %, both hits 100 %, every chance adjustable.
+            Assert.Equal(0.5f, OptionSpecs.GroinKnockdownChance.Default);
+            Assert.Equal(1f, OptionSpecs.ComboKnockdownChance.Default);
+            Assert.Equal(1f, OptionSpecs.ThroatReactionChance.Default);
+            Assert.Equal(1f, OptionSpecs.GroinReactionChance.Default);
+            foreach (var spec in new[] { OptionSpecs.GroinKnockdownChance, OptionSpecs.ComboKnockdownChance, OptionSpecs.ThroatReactionChance, OptionSpecs.GroinReactionChance })
+            {
+                Assert.Equal(0f, spec.Min);
+                Assert.Equal(1f, spec.Max);
+                Assert.Contains(spec, OptionSpecs.All);
+            }
         }
     }
 }
