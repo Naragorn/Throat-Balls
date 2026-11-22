@@ -79,7 +79,7 @@ namespace ThroatBalls
             var creature = r.Creature;
             if (creature == null || creature.isKilled)
             {
-                Undo(r, creature != null ? "died" : "gone");
+                Undo(r, creature != null ? "died" : "gone", wake: false);
                 return false;
             }
             var step = ReactionRules.OnTick(r.State, now, enabled);
@@ -165,7 +165,8 @@ namespace ThroatBalls
                 creature.StopAnimation();
                 r.PlayedClip = false;
                 var generation = r.Generation;
-                var delay = creature.GetOverrideClip(Creature.clipIndex.dynamicEndClip).length * 0.75f;
+                var endClip = creature.GetOverrideClip(Creature.clipIndex.dynamicEndClip);
+                var delay = endClip != null ? endClip.length * 0.75f : 0f;
                 creature.DelayedAction(delay, () =>
                 {
                     if (r.Generation == generation && !r.State.IsActive && !creature.isKilled)
@@ -181,8 +182,12 @@ namespace ThroatBalls
             ModLog.Verbose("REACTION | " + GameAdapters.Label(creature) + " | " + kind + " end (" + why + ")");
         }
 
-        /// <summary>Death, despawn or unload: undo at once, no clip end.</summary>
-        private void Undo(Reaction r, string why)
+        /// <summary>
+        /// Death, despawn or unload: undo at once, no clip end. The brain is only woken for a living NPC (unload):
+        /// on death and despawn the game's Brain.Stop already clears the unconscious flag and stops the brain, and
+        /// waking it would start the modules of a dead body again (a pooled NPC gets a fresh brain on reuse).
+        /// </summary>
+        private void Undo(Reaction r, string why, bool wake)
         {
             var creature = r.Creature;
             if (creature != null)
@@ -194,7 +199,11 @@ namespace ThroatBalls
                 }
                 ReactionBody.SetInjured(r, false);
                 ReactionBody.ReleaseHold(r, this);
-                ReactionBody.WakeNow(r);
+                if (wake && !creature.isKilled)
+                {
+                    ReactionBody.WakeNow(r);
+                }
+                r.BrainOff = false;
                 if (r.State.IsActive)
                 {
                     ModLog.Verbose("REACTION | " + GameAdapters.Label(creature) + " | " + r.State.Kind + " stopped (" + why + ")");
@@ -220,7 +229,7 @@ namespace ThroatBalls
         {
             if (creature != null && reactions.TryGetValue(creature.GetInstanceID(), out var r))
             {
-                Undo(r, why);
+                Undo(r, why, wake: false);
                 reactions.Remove(creature.GetInstanceID());
             }
         }
@@ -229,7 +238,7 @@ namespace ThroatBalls
         {
             foreach (var r in reactions.Values)
             {
-                Undo(r, "mod unloaded");
+                Undo(r, "mod unloaded", wake: true);
             }
             reactions.Clear();
         }

@@ -40,7 +40,7 @@ Nothing in this repo has run inside the game yet. Every "verified" below means r
 | Ragdoll fall | `Ragdoll.SetState(Destabilized)`, `Brain.AddNoStandUpModifier / RemoveNoStandUpModifier` | The hold is a list without duplicates; re-added every frame as AchillesBAS does. |
 | Voice | `BrainModuleSpeak.Play(dialogId, abnormalNoise)` | Refuses while `brain.isUnconscious` (read once at its start); this mod lifts the flag around the call when it set it. Dialog ids `grappled`, `hit`, `heavybreath` are in all eight `HumanMale*` voices of the catalog. |
 | Drop weapons | `RagdollHand.TryRelease()` | |
-| Kill, despawn | `EventManager.onCreatureKill` (OnEnd), `onCreatureDespawn` (OnStart) | On death the brain is woken as the game's stun does (`WaitConditionAction` ends a stun when the NPC is killed and calls `EndStun`). |
+| Kill, despawn | `EventManager.onCreatureKill` (OnEnd), `onCreatureDespawn` (OnStart) | Hands, height, Injured and the hold are undone; the brain is **not** woken: `Brain.Stop` (death, despawn; AchillesBAS read it) clears `isUnconscious` and stops the brain, and a pooled NPC gets a fresh brain (`Brain.Load`). The game's own stun does wake a killed NPC (`WaitConditionAction` ends when it is killed, then `EndStun` toggles the brain on after the end clip); not copied, as it starts the modules of a dead body again. |
 
 ### Assumed - must be confirmed in the game
 
