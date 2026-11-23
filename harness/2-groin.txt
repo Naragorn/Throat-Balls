@@ -14,8 +14,10 @@ set-option ThroatBalls "Allowed Hits" BluntOnly
 set-option ThroatBalls "Metal Armor Protects" false
 set-option ThroatBalls "Groin Duration" 4
 set-option ThroatBalls "Drop Weapons" WhenTheyGoDown
+frame-rate 90
 
 spawn-npc HumanMale distance=1.5 facing=0 brain=HumanDummy
+record-start groin fps=30 width=960 height=540 views=npc distance=1.8 rise=1.0 angle=60
 mark
 hit-npc Torso section=Lower at=0,-0.08,0.08 type=Blunt velocity=5
 expect-log [ThroatBalls] LOW BLOW
@@ -23,6 +25,8 @@ expect-log | Groin start
 wait 1
 screenshot groin-bent of=npc distance=1.8 height=1.0 angle=60
 await-log 6 | Groin end (time up)
+wait 1
+record-stop
 
 # A groin hit alone takes him down at Groin Knockdown Chance 100 % (Nadi 2026-11-22: 50 % by default),
 # and never at 0 % (the first part of this scenario).
@@ -30,12 +34,15 @@ set-option ThroatBalls "Groin Knockdown Chance" 1
 set-option ThroatBalls "Fall Style" CurlUp
 set-option ThroatBalls "Down Duration" 4
 spawn-npc HumanMale distance=1.5 angle=-60 facing=0 brain=HumanDummy
+record-start groin-down fps=30 width=960 height=540 views=npc distance=2 rise=1.0 angle=60
 mark
 hit-npc Torso section=Lower at=0,-0.08,0.08 type=Blunt velocity=5
 expect-log | Down start (groin
 wait 2.5
 screenshot groin-down of=npc distance=2 height=1.0 angle=60
 await-log 4 | Down end (time up)
+wait 2
+record-stop
 set-option ThroatBalls "Groin Knockdown Chance" 0.5
 set-option ThroatBalls "Down Duration" 8
 expect-no-log Exception

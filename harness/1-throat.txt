@@ -15,8 +15,10 @@ set-option ThroatBalls "Metal Armor Protects" false
 set-option ThroatBalls "Men Only" true
 set-option ThroatBalls "Throat Duration" 3
 set-option ThroatBalls "Both Hits Take Him Down" true
+frame-rate 90
 
 spawn-npc HumanMale distance=1.5 facing=0 brain=HumanDummy
+record-start throat fps=30 width=960 height=540 views=npc distance=1.6 rise=1.3 angle=30
 mark
 hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5
 expect-log [ThroatBalls] LOW BLOW
@@ -24,6 +26,8 @@ expect-log | Throat start
 wait 0.8
 screenshot throat-hands of=npc distance=1.6 height=1.5 angle=0
 await-log 5 | Throat end (time up)
+wait 1
+record-stop
 # The brain wakes after the stun clip's end; a HumanDummy must stay without its behaviour tree.
 wait 2
 expect-npc tree False within=0.1
