@@ -67,6 +67,15 @@ namespace ThroatBalls.Tests
         }
 
         [Fact]
+        public void Throat_zone_defaults_to_9_cm()
+        {
+            // Headset 2026-11-23: two fist hits missed the 7 cm throat zone by 2 and 7 mm (7.2 and 7.7 cm away);
+            // Nadi 2026-11-24: "go für 9cm".
+            Assert.Equal(0.09f, OptionSpecs.ThroatZoneSize.Default);
+            Assert.Equal("9 cm", OptionSpecs.ThroatZoneSize.Label(OptionSpecs.ThroatZoneSize.Default));
+        }
+
+        [Fact]
         public void Chances_default_as_asked()
         {
             // Nadi 2026-11-22: groin alone 50 %, both hits 100 %, every chance adjustable.

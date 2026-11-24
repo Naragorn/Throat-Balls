@@ -61,6 +61,7 @@ expect-option ThroatBalls "Min Hit Speed" 1.5
 expect-option ThroatBalls "Max Hit Angle" 100
 expect-option ThroatBalls "Drop Weapons" WhenTheyGoDown
 expect-option ThroatBalls "Throat Duration" 3
+expect-option ThroatBalls "Throat Zone Size" 0.09
 expect-option ThroatBalls "Throat Sound" Random
 expect-option ThroatBalls "Groin Duration" 4
 expect-option ThroatBalls "Time Between Hits" 4

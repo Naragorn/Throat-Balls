@@ -44,7 +44,7 @@ Open the book, go to **Mods**, pick **Throat Balls**. Changes apply at once.
 | Throat Reaction Chance | 100 % | 0–100 % | Chance a throat hit gets to him |
 | Throat Duration | 3 s | 1–15 s | How long he holds his throat |
 | Throat Sound | Random | Random, Sound 1–4 | Which of the game's four choke sounds he makes. Random: a different one each time |
-| Throat Zone Size | 7 cm | 3–15 cm | How big the throat spot is |
+| Throat Zone Size | 9 cm | 3–15 cm | How big the throat spot is |
 | Throat Forward Offset | 5 cm | -5–15 cm | Moves the spot forward or back |
 | Throat Height Offset | 5 cm | -10–15 cm | Moves the spot up or down |
 

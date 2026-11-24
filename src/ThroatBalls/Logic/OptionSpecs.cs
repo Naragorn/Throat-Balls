@@ -17,7 +17,7 @@ namespace ThroatBalls.Logic
             new FloatOptionSpec("Max Hit Angle", 30f, 180f, 5f, 100f, OptionUnit.Degrees);
 
         public static readonly FloatOptionSpec ThroatZoneSize =
-            new FloatOptionSpec("Throat Zone Size", 0.03f, 0.15f, 0.01f, 0.07f, OptionUnit.Centimeters);
+            new FloatOptionSpec("Throat Zone Size", 0.03f, 0.15f, 0.01f, 0.09f, OptionUnit.Centimeters);
 
         public static readonly FloatOptionSpec ThroatForwardOffset =
             new FloatOptionSpec("Throat Forward Offset", -0.05f, 0.15f, 0.01f, 0.05f, OptionUnit.Centimeters);
