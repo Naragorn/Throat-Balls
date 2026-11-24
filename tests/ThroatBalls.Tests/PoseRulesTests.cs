@@ -148,7 +148,7 @@ namespace ThroatBalls.Tests
         }
 
         [Theory]
-        [InlineData(ReactionKind.Throat, "grappled", "grappled")]
+        [InlineData(ReactionKind.Throat, "breathlessdeath", "breathlessdeath")] // only when the game clips did not load
         [InlineData(ReactionKind.Groin, "hit", "heavybreath")]
         [InlineData(ReactionKind.Down, "hit", "heavybreath")]
         [InlineData(ReactionKind.None, null, null)]

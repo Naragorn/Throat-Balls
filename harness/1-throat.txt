@@ -6,6 +6,7 @@ wait-level
 set-option ThroatBalls "Throat Balls Enabled" true
 set-option ThroatBalls "Debug Logging" true
 set-option ThroatBalls "Own Sounds" true
+set-option ThroatBalls "Throat Sound" Random
 # Chances pinned: a run must not depend on a roll.
 set-option ThroatBalls "Throat Reaction Chance" 1
 set-option ThroatBalls "Groin Reaction Chance" 1
@@ -24,9 +25,9 @@ mark
 hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5
 expect-log [ThroatBalls] LOW BLOW
 expect-log | Throat start
-# Own Sounds (on by default): the throat file plays at the start, not the game's grappled line.
+# Own Sounds (on by default): the throat file plays at the start, not a game clip.
 expect-log | own Throat 'throat-test.wav'
-expect-no-log | grappled
+expect-no-log | game Throat
 wait 0.8
 screenshot throat-hands of=npc distance=1.6 height=1.5 angle=0
 await-log 5 | Throat end (time up)
@@ -44,15 +45,34 @@ hit-npc Neck at=0,0.05,0.05 type=Slash velocity=5
 expect-log | HitNotAllowed
 expect-no-log | Throat start
 
-# Own Sounds off: the game's own voice line again.
+# Own Sounds off: one of the game's four breathless-death clips (Throat Sound Random), not the voice's line.
 set-option ThroatBalls "Own Sounds" false
 spawn-npc HumanMale distance=1.5 angle=40 facing=0 brain=HumanDummy
 mark
 hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5
 expect-log | Throat start
-expect-log | grappled
+expect-log | game Throat 'Male_Shout-of-Pain_0
 expect-no-log | own Throat
-# Options are saved in the run's prefix: give it back for the next scenarios.
+expect-no-log | breathlessdeath
+expect-no-log | grappled
+
+# Throat Sound 2: always the second clip (Male_Shout-of-Pain_054), also on the repeat (Groan Interval 1 s).
+set-option ThroatBalls "Throat Sound" "Sound 2"
+expect-option ThroatBalls "Throat Sound" "Sound 2"
+set-option ThroatBalls "Groan Interval" 1
+spawn-npc HumanMale distance=1.5 angle=-40 facing=0 brain=HumanDummy
+mark
+hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5
+expect-log | Throat start
+expect-log | game Throat 'Male_Shout-of-Pain_054'
+# The whole reaction (Throat Duration 3 s): the repeats too. The NPC before also took Sound 2 for his last repeats.
+wait 3.5
+expect-no-log | game Throat 'Male_Shout-of-Pain_047'
+expect-no-log | game Throat 'Male_Shout-of-Pain_072'
+expect-no-log | game Throat 'Male_Shout-of-Pain_087'
+# Options are saved in the run's prefix: give them back for the next scenarios.
 set-option ThroatBalls "Own Sounds" true
+set-option ThroatBalls "Throat Sound" Random
+set-option ThroatBalls "Groan Interval" 3
 expect-no-log Exception
 quit

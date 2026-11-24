@@ -33,7 +33,7 @@ Open the book, go to **Mods**, pick **Throat Balls**. Changes apply at once.
 | Max Hit Angle | 100° | 30–180° | How far to his side you may stand. 180 = even from behind |
 | Drop Weapons | When They Go Down | When They Go Down, Always, Never | When he lets his weapons fall |
 | Sounds | on | | He gags, groans and gasps |
-| Own Sounds | on | | Plays your own sound files (see below). Off: the game's voice |
+| Own Sounds | on | | Plays your own sound files (see below). Off: the game's sounds |
 | Groan Interval | 3 s | 0–10 s | How often. 0 = only once |
 
 **Throat**
@@ -43,6 +43,7 @@ Open the book, go to **Mods**, pick **Throat Balls**. Changes apply at once.
 | Throat Hits | on | | Throat hits count |
 | Throat Reaction Chance | 100 % | 0–100 % | Chance a throat hit gets to him |
 | Throat Duration | 3 s | 1–15 s | How long he holds his throat |
+| Throat Sound | Random | Random, Sound 1–4 | Which of the game's four choke sounds he makes. Random: a different one each time |
 | Throat Zone Size | 7 cm | 3–15 cm | How big the throat spot is |
 | Throat Forward Offset | 5 cm | -5–15 cm | Moves the spot forward or back |
 | Throat Height Offset | 5 cm | -10–15 cm | Moves the spot up or down |
@@ -81,9 +82,13 @@ Open the book, go to **Mods**, pick **Throat Balls**. Changes apply at once.
 | Debug Logging | off | Writes every hit to the game log, for bug reports |
 | Show Zones | off | Shows the throat and groin spots as colored balls, to adjust them |
 
-## Your own sounds
+## Sounds
 
-The game's voices have no choke and no "ow". You can add your own:
+Hit on the throat, he chokes with one of the game's four choke sounds (Throat Sound picks one, or Random). Hit between the legs, he grunts with one of two of the game's hit sounds, then breathes hard.
+
+### Your own sounds
+
+You can use your own sounds instead:
 
 1. Open the `Sounds` folder inside the mod's folder.
 2. Put WAV files in it. Name them `throat...wav` for the choke (for example `throat-choke.wav`) and `groin...wav` for the "ow" (for example `groin-ow.wav`).
@@ -92,7 +97,7 @@ The game's voices have no choke and no "ow". You can add your own:
 - The throat sound plays when he is hit and again while he holds his throat. The groin sound plays once, when he is hit.
 - Several files per spot take turns.
 - Use WAV, 16-bit is safest. MP3 and OGG are not read.
-- No files: the game's own voice plays.
+- No files, or Own Sounds off: the game's sounds play.
 
 ## Works with
 

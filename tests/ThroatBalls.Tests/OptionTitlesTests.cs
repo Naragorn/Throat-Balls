@@ -22,5 +22,22 @@ namespace ThroatBalls.Tests
             Assert.Equal(AllowedHits.BluntOnly, values[0]); // the menu falls back to the first entry
             Assert.Equal(values.Length, Array.ConvertAll(values, OptionTitles.Of).Distinct().Count());
         }
+
+        [Fact]
+        public void Throat_sound_titles_number_the_clips_as_they_were_picked()
+        {
+            Assert.Equal("Random", OptionTitles.Of(ThroatSound.Random));
+            Assert.Equal("Sound 1", OptionTitles.Of(ThroatSound.Sound1));
+            Assert.Equal("Sound 2", OptionTitles.Of(ThroatSound.Sound2));
+            Assert.Equal("Sound 3", OptionTitles.Of(ThroatSound.Sound3));
+            Assert.Equal("Sound 4", OptionTitles.Of(ThroatSound.Sound4));
+        }
+
+        [Fact]
+        public void Every_throat_sound_value_has_its_own_title()
+        {
+            var values = (ThroatSound[])Enum.GetValues(typeof(ThroatSound));
+            Assert.Equal(values.Length, Array.ConvertAll(values, OptionTitles.Of).Distinct().Count());
+        }
     }
 }

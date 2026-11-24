@@ -39,7 +39,7 @@ namespace ThroatBalls
         public GameObject RightAnchor;
         public float LastGroanAt;
 
-        /// <summary>Plays the own sound files from his head (<see cref="SoundBank"/>); made on the first one.</summary>
+        /// <summary>Plays the own files and the game clips from his head (<see cref="SoundBank"/>); made on the first one.</summary>
         public AudioSource Voice;
 
         /// <summary>Set when the reaction ended; the delayed wake-up only runs for this one.</summary>

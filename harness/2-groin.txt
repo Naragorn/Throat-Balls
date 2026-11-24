@@ -48,6 +48,21 @@ screenshot groin-down of=npc distance=2 height=1.0 angle=60
 await-log 4 | Down end (time up)
 wait 2
 record-stop
+
+# Own Sounds off: one of the two game grunts Nadi picked (cottage man 2's 7th hit, Edwyn's 10th), not the voice's hit line.
+set-option ThroatBalls "Groin Knockdown Chance" 0
+set-option ThroatBalls "Own Sounds" false
+spawn-npc HumanMale distance=1.5 angle=60 facing=0 brain=HumanDummy
+mark
+hit-npc Torso section=Lower at=0,-0.08,0.08 type=Blunt velocity=5
+expect-log | Groin start
+expect-log | game Groin '
+expect-no-log | own Groin
+# The voice's own line would log "SOUND | HumanMale #id | hit".
+expect-no-log | hit
+await-log 6 | Groin end (time up)
+expect-log | heavybreath
+set-option ThroatBalls "Own Sounds" true
 set-option ThroatBalls "Groin Knockdown Chance" 0.5
 set-option ThroatBalls "Down Duration" 8
 expect-no-log Exception

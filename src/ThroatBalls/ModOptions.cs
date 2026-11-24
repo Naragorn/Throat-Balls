@@ -67,7 +67,7 @@ namespace ThroatBalls
         [ModOptionOrder(7)]
         public static bool Sounds = true;
 
-        [ModOption("Own Sounds", "Plays the sound files in the mod's Sounds folder: throat*.wav when he chokes, groin*.wav for the ow. Off, or no files: the game's own voice.")]
+        [ModOption("Own Sounds", "Plays the sound files in the mod's Sounds folder: throat*.wav when he chokes, groin*.wav for the ow. Off, or no files: the game's sounds.")]
         [ModOptionCategory(MainCategory, 0)]
         [ModOptionOrder(8)]
         public static bool PlayOwnSounds = true;
@@ -97,21 +97,26 @@ namespace ThroatBalls
         [ModOptionSlider]
         public static float ThroatDuration = OptionSpecs.ThroatDuration.Default;
 
-        [ModOption("Throat Zone Size", "How big the spot is that counts as the throat.", nameof(ThroatZoneSizeValues))]
+        [ModOption("Throat Sound", "Which of the game's four choke sounds he makes. Random: a different one each time.", nameof(ThroatSoundValues))]
         [ModOptionCategory(ThroatCategory, 1)]
         [ModOptionOrder(3)]
+        public static ThroatSound ThroatSound = ThroatSound.Random;
+
+        [ModOption("Throat Zone Size", "How big the spot is that counts as the throat.", nameof(ThroatZoneSizeValues))]
+        [ModOptionCategory(ThroatCategory, 1)]
+        [ModOptionOrder(4)]
         [ModOptionSlider]
         public static float ThroatZoneSize = OptionSpecs.ThroatZoneSize.Default;
 
         [ModOption("Throat Forward Offset", "Moves the throat spot forward or back. Turn on Show Zones to see it.", nameof(ThroatForwardOffsetValues))]
         [ModOptionCategory(ThroatCategory, 1)]
-        [ModOptionOrder(4)]
+        [ModOptionOrder(5)]
         [ModOptionSlider]
         public static float ThroatForwardOffset = OptionSpecs.ThroatForwardOffset.Default;
 
         [ModOption("Throat Height Offset", "Moves the throat spot up or down. Turn on Show Zones to see it.", nameof(ThroatHeightOffsetValues))]
         [ModOptionCategory(ThroatCategory, 1)]
-        [ModOptionOrder(5)]
+        [ModOptionOrder(6)]
         [ModOptionSlider]
         public static float ThroatHeightOffset = OptionSpecs.ThroatHeightOffset.Default;
 
@@ -281,6 +286,12 @@ namespace ThroatBalls
             new ModOptionInt(OptionTitles.Of(AllowedHits.FistsAndKicksOnly), (int)AllowedHits.FistsAndKicksOnly),
             new ModOptionInt(OptionTitles.Of(AllowedHits.AnyHit), (int)AllowedHits.AnyHit),
         };
+
+        public static ModOptionParameter[] ThroatSoundValues()
+        {
+            var values = (ThroatSound[])System.Enum.GetValues(typeof(ThroatSound));
+            return System.Array.ConvertAll(values, v => (ModOptionParameter)new ModOptionInt(OptionTitles.Of(v), (int)v));
+        }
 
         public static ModOptionParameter[] MinHitSpeedValues() => ToParameters(OptionSpecs.MinHitSpeed);
 

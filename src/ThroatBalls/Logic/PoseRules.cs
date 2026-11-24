@@ -130,13 +130,17 @@ namespace ThroatBalls.Logic
             }
         }
 
-        /// <summary>The voice line at the start (the game's dialog ids, present in every human male voice).</summary>
+        /// <summary>
+        /// The voice line at the start (the game's dialog ids, present in every human male voice). The throat and the
+        /// groin start play the game clips of <see cref="GameSounds"/> instead; these lines are what is left when those
+        /// did not load. breathlessdeath is the same group as the throat clips, so the throat still chokes.
+        /// </summary>
         public static string StartSound(ReactionKind kind)
         {
             switch (kind)
             {
                 case ReactionKind.Throat:
-                    return "grappled";
+                    return "breathlessdeath";
                 case ReactionKind.Groin:
                 case ReactionKind.Down:
                     return "hit";
@@ -145,13 +149,13 @@ namespace ThroatBalls.Logic
             }
         }
 
-        /// <summary>The voice line repeated while it lasts.</summary>
+        /// <summary>The voice line repeated while it lasts (the groin's heavy breathing is always this line).</summary>
         public static string RepeatSound(ReactionKind kind)
         {
             switch (kind)
             {
                 case ReactionKind.Throat:
-                    return "grappled";
+                    return "breathlessdeath";
                 case ReactionKind.Groin:
                 case ReactionKind.Down:
                     return "heavybreath";

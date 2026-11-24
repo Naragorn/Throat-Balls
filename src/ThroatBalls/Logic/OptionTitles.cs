@@ -19,5 +19,13 @@ namespace ThroatBalls.Logic
                     return "Fists, Kicks, Blunt Weapons";
             }
         }
+
+        /// <summary>The clips numbered as Nadi picked them (their places in the game's group, by name).</summary>
+        public static string Of(ThroatSound value)
+        {
+            return value == ThroatSound.Random
+                ? "Random"
+                : "Sound " + (GameSounds.FixedIndex(value) + 1).ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
     }
 }

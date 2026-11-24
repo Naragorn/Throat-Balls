@@ -20,7 +20,7 @@ namespace ThroatBalls
         // [0, 1), so a 100 % chance always hits (UnityEngine.Random.value can return 1).
         private readonly System.Random dice = new System.Random();
 
-        /// <summary>The player's own sound files; null or empty: the game's voice only.</summary>
+        /// <summary>The player's own sound files and the game clips; null: the voice's own lines only.</summary>
         public SoundBank Sounds { get; set; }
 
         public int Count => reactions.Count;
@@ -169,17 +169,13 @@ namespace ThroatBalls
                 + (kind == ReactionKind.Down ? " | fall " + ModOptions.FallStyle : string.Empty));
         }
 
-        /// <summary>One sound: an own file when Own Sounds is on and the reaction has files, else the game's voice line.</summary>
+        /// <summary>One sound: an own file or a game clip (<see cref="SoundBank"/>), else the voice's own line.</summary>
         private void Voice(Reaction r, ReactionKind kind, bool repeat)
         {
-            string why = null;
-            var own = ModOptions.PlayOwnSounds && Sounds != null && Sounds.TryPlay(r, OwnSounds.SlotFor(kind, repeat), out why);
-            if (!own)
+            var slot = OwnSounds.SlotFor(kind, repeat);
+            var source = Sounds != null ? Sounds.Play(r, slot, ModOptions.PlayOwnSounds, ModOptions.ThroatSound) : SoundSource.Dialog;
+            if (source == SoundSource.Dialog)
             {
-                if (why != null)
-                {
-                    ModLog.Verbose("SOUND | " + GameAdapters.Label(r.Creature) + " | own sound skipped: " + why);
-                }
                 ReactionBody.Speak(r, repeat ? PoseRules.RepeatSound(kind) : PoseRules.StartSound(kind));
             }
         }

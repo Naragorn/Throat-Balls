@@ -24,15 +24,25 @@ namespace ThroatBalls
         {
             base.ScriptLoaded(modData);
             ModLog.Info("Loaded " + modData.Name + " " + modData.ModVersion + " (folder " + modData.folderName + ")");
+            var sounds = new SoundBank();
+            reactions.Sounds = sounds;
             try
             {
-                var sounds = new SoundBank();
                 sounds.Load(modData.fullPath);
-                reactions.Sounds = sounds;
             }
             catch (Exception ex)
             {
-                ModLog.Error("Own sounds failed to load, the game's voice plays: " + ex);
+                ModLog.Error("Own sounds failed to load: " + ex);
+            }
+            try
+            {
+                // ScriptLoaded runs after the game's and the mods' addressable assets are loaded and before the catalog
+                // refresh (ModManager.LoadCoroutine), so the audio groups can be loaded by address here.
+                sounds.LoadGameClips();
+            }
+            catch (Exception ex)
+            {
+                ModLog.Error("Game sounds failed to load, the voice's own lines play: " + ex);
             }
         }
 

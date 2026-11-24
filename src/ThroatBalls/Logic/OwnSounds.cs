@@ -18,7 +18,8 @@ namespace ThroatBalls.Logic
     /// <summary>
     /// The player's own sound files (Nadi, 2026-11-24: "choke bei throat und Owww bei eier schlag"). The game's male
     /// voices have no "ow" and no choke line (catalog 2026-11-24: hit, grappled, muffled, heavybreath, breathlessdeath,
-    /// ...), so the mod plays WAV files from its Sounds folder. Without files the game's own voice plays, as before.
+    /// ...), so the mod plays WAV files from its Sounds folder. Without files the game clips Nadi picked play
+    /// (<see cref="GameSounds"/>); the slots here are theirs too.
     /// </summary>
     public static class OwnSounds
     {

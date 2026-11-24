@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using ThroatBalls.Logic;
 using ThunderRoad;
@@ -8,34 +9,56 @@ using UnityEngine;
 namespace ThroatBalls
 {
     /// <summary>
-    /// The player's own sound files from the mod's Sounds folder (<see cref="OwnSounds"/>), loaded once when the mod
-    /// loads, played from the NPC's head through the game's Voice mixer (so the game's voice volume applies).
+    /// The sounds the mod plays itself, from the NPC's head through the game's Voice mixer (so the game's voice volume
+    /// applies): the player's own files from the mod's Sounds folder (<see cref="OwnSounds"/>, read once when the mod
+    /// loads) and the game clips picked for the throat and the groin (<see cref="GameSounds"/>, their audio groups
+    /// loaded once by address, as the game's voices load them). Which of them plays: <see cref="GameSounds.SourceFor"/>.
     /// </summary>
     internal sealed class SoundBank
     {
         private const float MinDistance = 1f;
         private const float MaxDistance = 20f;
+        private const string HandlerName = "ThroatBalls";
 
-        private readonly Dictionary<SoundSlot, List<AudioClip>> clips = new Dictionary<SoundSlot, List<AudioClip>>
+        private readonly Dictionary<SoundSlot, List<AudioClip>> own = new Dictionary<SoundSlot, List<AudioClip>>
         {
             [SoundSlot.Throat] = new List<AudioClip>(),
             [SoundSlot.Groin] = new List<AudioClip>(),
         };
 
-        private readonly Dictionary<SoundSlot, int> lastPicked = new Dictionary<SoundSlot, int>
+        private readonly Dictionary<SoundSlot, AudioClip[]> game = new Dictionary<SoundSlot, AudioClip[]>
+        {
+            [SoundSlot.Throat] = new AudioClip[GameSounds.Throat.Count],
+            [SoundSlot.Groin] = new AudioClip[GameSounds.Groin.Count],
+        };
+
+        private readonly Dictionary<SoundSlot, bool[]> gameLoaded = new Dictionary<SoundSlot, bool[]>
+        {
+            [SoundSlot.Throat] = new bool[GameSounds.Throat.Count],
+            [SoundSlot.Groin] = new bool[GameSounds.Groin.Count],
+        };
+
+        private readonly Dictionary<SoundSlot, int> lastOwn = new Dictionary<SoundSlot, int>
+        {
+            [SoundSlot.Throat] = -1,
+            [SoundSlot.Groin] = -1,
+        };
+
+        private readonly Dictionary<SoundSlot, int> lastGame = new Dictionary<SoundSlot, int>
         {
             [SoundSlot.Throat] = -1,
             [SoundSlot.Groin] = -1,
         };
 
         private readonly System.Random dice = new System.Random();
+        private int groupsPending;
 
         public void Load(string modFolder)
         {
             var folder = Path.Combine(modFolder ?? string.Empty, OwnSounds.FolderName);
             if (!Directory.Exists(folder))
             {
-                ModLog.Info("Own sounds: no " + OwnSounds.FolderName + " folder, the game's voice plays");
+                ModLog.Info("Own sounds: no " + OwnSounds.FolderName + " folder");
                 return;
             }
             var files = Directory.GetFiles(folder);
@@ -55,37 +78,51 @@ namespace ThroatBalls
                 }
                 var clip = AudioClip.Create(name, wav.Samples.Length / wav.Channels, wav.Channels, wav.SampleRate, false);
                 clip.SetData(wav.Samples, 0);
-                clips[slot].Add(clip);
+                own[slot].Add(clip);
             }
-            ModLog.Info("Own sounds: " + Describe(SoundSlot.Throat) + " throat, " + Describe(SoundSlot.Groin) + " groin (" + folder + ")");
+            ModLog.Info("Own sounds: " + Number(own[SoundSlot.Throat].Count) + " throat, " + Number(own[SoundSlot.Groin].Count) + " groin (" + folder + ")");
         }
 
-        /// <summary>Plays one of the slot's files from the NPC's head; false when the slot has none (the caller uses the game's voice).</summary>
-        public bool TryPlay(Reaction r, SoundSlot slot, out string why)
+        /// <summary>Starts loading the audio groups of the game clips; once all are in, the log says how many were found.</summary>
+        public void LoadGameClips()
         {
-            why = null;
-            if (slot == SoundSlot.None)
+            var addresses = GameSounds.Addresses();
+            groupsPending = addresses.Count;
+            foreach (var address in addresses)
             {
-                return false;
+                var requested = address;
+                Catalog.LoadAssetAsync<ScriptableObject>(requested, group => OnGroupLoaded(requested, group), HandlerName);
             }
-            if (!clips.TryGetValue(slot, out var list) || list.Count == 0)
+        }
+
+        /// <summary>
+        /// Plays the slot's sound from the NPC's head: an own file or a game clip. <see cref="SoundSource.Dialog"/>:
+        /// nothing was played and the caller has the voice say its own line.
+        /// </summary>
+        public SoundSource Play(Reaction r, SoundSlot slot, bool ownOn, ThroatSound throatSound)
+        {
+            var source = GameSounds.SourceFor(slot, ownOn, OwnCount(slot), GameCount(slot));
+            if (source == SoundSource.Dialog)
             {
-                why = "no " + slot + " files";
-                return false;
+                if (slot != SoundSlot.None)
+                {
+                    ModLog.Verbose("SOUND | " + GameAdapters.Label(r.Creature) + " | no own file and no game clip for " + slot);
+                }
+                return source;
             }
-            var source = SourceOf(r);
-            if (source == null)
+            var clip = source == SoundSource.Own ? PickOwn(slot) : PickGame(slot, throatSound);
+            var player = clip != null ? SourceOf(r) : null;
+            if (player == null)
             {
-                why = "no head to play from";
-                return false;
+                ModLog.Verbose("SOUND | " + GameAdapters.Label(r.Creature) + " | " + (clip == null ? "no clip" : "no head to play from") + " for " + slot);
+                return SoundSource.Dialog;
             }
-            var index = OwnSounds.Pick(list.Count, lastPicked[slot], dice.NextDouble());
-            lastPicked[slot] = index;
-            source.Stop();
-            source.clip = list[index];
-            source.Play();
-            ModLog.Verbose("SOUND | " + GameAdapters.Label(r.Creature) + " | own " + slot + " '" + list[index].name + "' (" + list[index].length.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " s)");
-            return true;
+            player.Stop();
+            player.clip = clip;
+            player.Play();
+            ModLog.Verbose("SOUND | " + GameAdapters.Label(r.Creature) + " | " + (source == SoundSource.Own ? "own " : "game ") + slot
+                + " '" + clip.name + "' (" + clip.length.ToString("0.0", CultureInfo.InvariantCulture) + " s)");
+            return source;
         }
 
         /// <summary>Removes the reaction's audio source (it ends with the reaction; a sound still playing is cut).</summary>
@@ -96,6 +133,85 @@ namespace ThroatBalls
                 UnityEngine.Object.Destroy(r.Voice.gameObject);
             }
             r.Voice = null;
+        }
+
+        private void OnGroupLoaded(string address, ScriptableObject group)
+        {
+            // A voice's audio group is an AudioContainer or an AdvancedAudioContainer around one (VoiceData.Dialog).
+            var container = group is AdvancedAudioContainer advanced ? advanced.audioContainer : group as AudioContainer;
+            if (container == null || container.sounds == null)
+            {
+                ModLog.Warn("Game sounds: no audio group at " + address + (group == null ? string.Empty : " (" + group.GetType().Name + ")"));
+            }
+            else
+            {
+                Take(SoundSlot.Throat, address, container);
+                Take(SoundSlot.Groin, address, container);
+            }
+            groupsPending--;
+            if (groupsPending == 0)
+            {
+                ModLog.Info("Game sounds: " + Number(GameCount(SoundSlot.Throat)) + " throat, " + Number(GameCount(SoundSlot.Groin)) + " groin");
+            }
+        }
+
+        /// <summary>The slot's clips of this audio group, found by name; a missing one is named in the log with what the group has.</summary>
+        private void Take(SoundSlot slot, string address, AudioContainer container)
+        {
+            var wanted = GameSounds.For(slot);
+            for (var i = 0; i < wanted.Count; i++)
+            {
+                if (wanted[i].Address != address)
+                {
+                    continue;
+                }
+                var clip = container.sounds.Find(c => c != null && c.name == wanted[i].Clip);
+                game[slot][i] = clip;
+                gameLoaded[slot][i] = clip != null;
+                if (clip == null)
+                {
+                    ModLog.Warn("Game sounds: " + wanted[i].Clip + " is not in " + container.name + " (" + address + "), it has: "
+                        + string.Join(", ", container.sounds.ConvertAll(c => c != null ? c.name : "null")));
+                }
+            }
+        }
+
+        private AudioClip PickOwn(SoundSlot slot)
+        {
+            var list = own[slot];
+            var index = OwnSounds.Pick(list.Count, lastOwn[slot], dice.NextDouble());
+            lastOwn[slot] = index;
+            return index >= 0 ? list[index] : null;
+        }
+
+        private AudioClip PickGame(SoundSlot slot, ThroatSound throatSound)
+        {
+            var fixedIndex = slot == SoundSlot.Throat ? GameSounds.FixedIndex(throatSound) : -1;
+            var index = GameSounds.Pick(gameLoaded[slot], fixedIndex, lastGame[slot], dice.NextDouble());
+            lastGame[slot] = index;
+            return index >= 0 ? game[slot][index] : null;
+        }
+
+        private int OwnCount(SoundSlot slot)
+        {
+            return own.TryGetValue(slot, out var list) ? list.Count : 0;
+        }
+
+        private int GameCount(SoundSlot slot)
+        {
+            if (!gameLoaded.TryGetValue(slot, out var loaded))
+            {
+                return 0;
+            }
+            var count = 0;
+            foreach (var present in loaded)
+            {
+                if (present)
+                {
+                    count++;
+                }
+            }
+            return count;
         }
 
         private static AudioSource SourceOf(Reaction r)
@@ -122,9 +238,9 @@ namespace ThroatBalls
             return source;
         }
 
-        private string Describe(SoundSlot slot)
+        private static string Number(int value)
         {
-            return clips[slot].Count.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            return value.ToString(CultureInfo.InvariantCulture);
         }
     }
 }
