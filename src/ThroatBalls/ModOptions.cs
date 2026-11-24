@@ -40,7 +40,7 @@ namespace ThroatBalls
         [ModOptionOrder(2)]
         public static bool MetalArmorProtects = true;
 
-        [ModOption("Allowed Hits", "What can land the blow. Blunt: fists, kicks, maces, pommels. Fists And Kicks: only your own hands and feet. Any Hit: blades too.")]
+        [ModOption("Allowed Hits", "What can land the blow. Fists, Kicks, Blunt Weapons: your hands and feet, maces, pommels. Fists And Kicks Only: no weapons. Any Hit: blades too.", nameof(AllowedHitsValues))]
         [ModOptionCategory(MainCategory, 0)]
         [ModOptionOrder(3)]
         public static AllowedHits AllowedHits = AllowedHits.BluntOnly;
@@ -67,9 +67,14 @@ namespace ThroatBalls
         [ModOptionOrder(7)]
         public static bool Sounds = true;
 
-        [ModOption("Groan Interval", "How often he gags or groans while it lasts. 0 = only once, when hit.", nameof(GroanIntervalValues))]
+        [ModOption("Own Sounds", "Plays the sound files in the mod's Sounds folder: throat*.wav when he chokes, groin*.wav for the ow. Off, or no files: the game's own voice.")]
         [ModOptionCategory(MainCategory, 0)]
         [ModOptionOrder(8)]
+        public static bool PlayOwnSounds = true;
+
+        [ModOption("Groan Interval", "How often he gags or groans while it lasts. 0 = only once, when hit.", nameof(GroanIntervalValues))]
+        [ModOptionCategory(MainCategory, 0)]
+        [ModOptionOrder(9)]
         [ModOptionSlider]
         public static float GroanInterval = OptionSpecs.GroanInterval.Default;
 
@@ -269,6 +274,13 @@ namespace ThroatBalls
             s.DropWeapons = DropWeapons;
             return s;
         }
+
+        public static ModOptionParameter[] AllowedHitsValues() => new ModOptionParameter[]
+        {
+            new ModOptionInt(OptionTitles.Of(AllowedHits.BluntOnly), (int)AllowedHits.BluntOnly),
+            new ModOptionInt(OptionTitles.Of(AllowedHits.FistsAndKicksOnly), (int)AllowedHits.FistsAndKicksOnly),
+            new ModOptionInt(OptionTitles.Of(AllowedHits.AnyHit), (int)AllowedHits.AnyHit),
+        };
 
         public static ModOptionParameter[] MinHitSpeedValues() => ToParameters(OptionSpecs.MinHitSpeed);
 

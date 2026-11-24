@@ -5,12 +5,13 @@
 wait-level
 set-option ThroatBalls "Throat Balls Enabled" true
 set-option ThroatBalls "Debug Logging" true
+set-option ThroatBalls "Own Sounds" true
 # Chances pinned: a run must not depend on a roll.
 set-option ThroatBalls "Throat Reaction Chance" 1
 set-option ThroatBalls "Groin Reaction Chance" 1
 set-option ThroatBalls "Groin Knockdown Chance" 0
 set-option ThroatBalls "Both Hits Knockdown Chance" 1
-set-option ThroatBalls "Allowed Hits" BluntOnly
+set-option ThroatBalls "Allowed Hits" "Fists, Kicks, Blunt Weapons"
 set-option ThroatBalls "Metal Armor Protects" false
 set-option ThroatBalls "Groin Duration" 4
 set-option ThroatBalls "Drop Weapons" WhenTheyGoDown
@@ -22,9 +23,12 @@ mark
 hit-npc Torso section=Lower at=0,-0.08,0.08 type=Blunt velocity=5
 expect-log [ThroatBalls] LOW BLOW
 expect-log | Groin start
+# Own Sounds: the groin file once at the start; the repeats stay the game's heavy breathing (Groan Interval 3 s).
+expect-log | own Groin 'groin-test.wav'
 wait 1
 screenshot groin-bent of=npc distance=1.8 height=1.0 angle=60
 await-log 6 | Groin end (time up)
+expect-log | heavybreath
 wait 1
 record-stop
 
@@ -38,6 +42,7 @@ record-start groin-down fps=30 width=960 height=540 views=npc distance=2 rise=1.
 mark
 hit-npc Torso section=Lower at=0,-0.08,0.08 type=Blunt velocity=5
 expect-log | Down start (groin
+expect-log | own Groin 'groin-test.wav'
 wait 2.5
 screenshot groin-down of=npc distance=2 height=1.0 angle=60
 await-log 4 | Down end (time up)

@@ -9,7 +9,7 @@ wait-level
 set-option ThroatBalls "Throat Balls Enabled" true
 set-option ThroatBalls "Debug Logging" true
 set-option ThroatBalls "Show Zones" true
-set-option ThroatBalls "Allowed Hits" BluntOnly
+set-option ThroatBalls "Allowed Hits" "Fists, Kicks, Blunt Weapons"
 frame-rate 90
 player-invincible true
 player-eyes

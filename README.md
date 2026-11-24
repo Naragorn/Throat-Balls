@@ -9,7 +9,7 @@ A Blade & Sorcery mod. Punch or kick a man in the throat or between the legs and
 - **Both, one after the other:** he grabs his groin and goes down. After a while he gets back up.
 - Every one of these has its own chance in the Mods menu.
 - Only men react, and only where no metal armor covers the spot. Leather and cloth don't protect.
-- By default only blunt hits count: fists, kicks, maces, pommels.
+- By default fists, kicks and blunt weapons count (maces, pommels). Blades don't.
 - While he reacts, he doesn't fight back.
 
 ## Install
@@ -28,11 +28,12 @@ Open the book, go to **Mods**, pick **Throat Balls**. Changes apply at once.
 | Throat Balls Enabled | on | | Turns the mod on or off |
 | Men Only | on | | Off: women react too |
 | Metal Armor Protects | on | | Metal armor on the spot stops the hit |
-| Allowed Hits | Blunt Only | Blunt Only, Fists And Kicks Only, Any Hit | What can land the blow |
+| Allowed Hits | Fists, Kicks, Blunt Weapons | Fists, Kicks, Blunt Weapons; Fists And Kicks Only; Any Hit, Blades Too | What can land the blow |
 | Min Hit Speed | 1.5 m/s | 0–6 m/s | How hard you must hit |
 | Max Hit Angle | 100° | 30–180° | How far to his side you may stand. 180 = even from behind |
 | Drop Weapons | When They Go Down | When They Go Down, Always, Never | When he lets his weapons fall |
 | Sounds | on | | He gags, groans and gasps |
+| Own Sounds | on | | Plays your own sound files (see below). Off: the game's voice |
 | Groan Interval | 3 s | 0–10 s | How often. 0 = only once |
 
 **Throat**
@@ -80,10 +81,23 @@ Open the book, go to **Mods**, pick **Throat Balls**. Changes apply at once.
 | Debug Logging | off | Writes every hit to the game log, for bug reports |
 | Show Zones | off | Shows the throat and groin spots as colored balls, to adjust them |
 
+## Your own sounds
+
+The game's voices have no choke and no "ow". You can add your own:
+
+1. Open the `Sounds` folder inside the mod's folder.
+2. Put WAV files in it. Name them `throat...wav` for the choke (for example `throat-choke.wav`) and `groin...wav` for the "ow" (for example `groin-ow.wav`).
+3. Start the game.
+
+- The throat sound plays when he is hit and again while he holds his throat. The groin sound plays once, when he is hit.
+- Several files per spot take turns.
+- Use WAV, 16-bit is safest. MP3 and OGG are not read.
+- No files: the game's own voice plays.
+
 ## Works with
 
 - Mods that change how enemies react to wounds (for example Realistic Deaths) may react to the same hit. Not tested together yet.
 
 ## Known limits
 
-- Not tested in the game yet. The spots, the bend and the fall are first guesses: turn on Show Zones to see the spots.
+- Tested in the game once (throat and groin hits). The spots, the bend and the fall are first guesses: turn on Show Zones to see the spots.

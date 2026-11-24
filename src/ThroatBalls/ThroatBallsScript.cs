@@ -24,6 +24,16 @@ namespace ThroatBalls
         {
             base.ScriptLoaded(modData);
             ModLog.Info("Loaded " + modData.Name + " " + modData.ModVersion + " (folder " + modData.folderName + ")");
+            try
+            {
+                var sounds = new SoundBank();
+                sounds.Load(modData.fullPath);
+                reactions.Sounds = sounds;
+            }
+            catch (Exception ex)
+            {
+                ModLog.Error("Own sounds failed to load, the game's voice plays: " + ex);
+            }
         }
 
         public override void ScriptEnable()

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds Throat Balls (Release) and copies ThroatBalls.dll + manifest.json into BOTH game installs: the Linux
+# Builds Throat Balls (Release) and copies ThroatBalls.dll + manifest.json (+ Sounds/README.txt) into BOTH game installs: the Linux
 # Steam copy and the Windows Steam copy (Vortex manages that Mods folder; the mod lies next to the others).
 # Refuses uncommitted src changes, then checks that all copies have the same md5. Template: AchillesBAS tools/deploy.sh.
 # Linux only (the Linux install is not reachable from Windows).
@@ -24,6 +24,9 @@ for mods in "$LINUX_MODS" "$WINDOWS_MODS"; do
   fi
   mkdir -p "$mods/ThroatBalls"
   cp "$DIST/ThroatBalls.dll" "$DIST/manifest.json" "$mods/ThroatBalls/"
+  # Only the README: the player's own WAV files in Sounds/ stay as they are.
+  mkdir -p "$mods/ThroatBalls/Sounds"
+  cp "$DIST/Sounds/README.txt" "$mods/ThroatBalls/Sounds/"
 done
 want=$(md5sum "$DIST/ThroatBalls.dll" | cut -d' ' -f1)
 for mods in "$LINUX_MODS" "$WINDOWS_MODS"; do

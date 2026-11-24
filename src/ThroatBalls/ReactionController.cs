@@ -20,6 +20,9 @@ namespace ThroatBalls
         // [0, 1), so a 100 % chance always hits (UnityEngine.Random.value can return 1).
         private readonly System.Random dice = new System.Random();
 
+        /// <summary>The player's own sound files; null or empty: the game's voice only.</summary>
+        public SoundBank Sounds { get; set; }
+
         public int Count => reactions.Count;
 
         public bool IsReacting(Creature creature)
@@ -82,6 +85,7 @@ namespace ThroatBalls
             }
             foreach (var id in done)
             {
+                SoundBank.Release(reactions[id]);
                 reactions.Remove(id);
             }
         }
@@ -137,7 +141,7 @@ namespace ThroatBalls
             if (ModOptions.Sounds && PoseRules.GroanDue(r.LastGroanAt, now, ModOptions.GroanInterval))
             {
                 r.LastGroanAt = now;
-                ReactionBody.Speak(r, PoseRules.RepeatSound(kind));
+                Voice(r, kind, repeat: true);
             }
         }
 
@@ -148,7 +152,7 @@ namespace ThroatBalls
             r.Generation++;
             if (ModOptions.Sounds)
             {
-                ReactionBody.Speak(r, PoseRules.StartSound(kind));
+                Voice(r, kind, repeat: false);
             }
             r.LastGroanAt = now;
             var drops = PoseRules.DropsWeapons(kind, ModOptions.DropWeapons);
@@ -163,6 +167,21 @@ namespace ThroatBalls
                 + (before != ReactionKind.None ? " (was " + before + ")" : string.Empty)
                 + " | " + F(r.State.Until - now) + " s | weapons " + (drops ? "dropped" : "kept")
                 + (kind == ReactionKind.Down ? " | fall " + ModOptions.FallStyle : string.Empty));
+        }
+
+        /// <summary>One sound: an own file when Own Sounds is on and the reaction has files, else the game's voice line.</summary>
+        private void Voice(Reaction r, ReactionKind kind, bool repeat)
+        {
+            string why = null;
+            var own = ModOptions.PlayOwnSounds && Sounds != null && Sounds.TryPlay(r, OwnSounds.SlotFor(kind, repeat), out why);
+            if (!own)
+            {
+                if (why != null)
+                {
+                    ModLog.Verbose("SOUND | " + GameAdapters.Label(r.Creature) + " | own sound skipped: " + why);
+                }
+                ReactionBody.Speak(r, repeat ? PoseRules.RepeatSound(kind) : PoseRules.StartSound(kind));
+            }
         }
 
         /// <summary>Normal end: everything back, the brain after the stun clip's end (as the game's stun ends).</summary>
@@ -222,6 +241,7 @@ namespace ThroatBalls
                     ModLog.Verbose("REACTION | " + GameAdapters.Label(creature) + " | " + r.State.Kind + " stopped (" + why + ")");
                 }
             }
+            SoundBank.Release(r);
             r.PlayedClip = false;
             r.Generation++;
             r.State = ReactionState.Idle;

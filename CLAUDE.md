@@ -16,7 +16,7 @@ Blade & Sorcery (VR) mod built against the game's own `ThunderRoad.dll` (Unity +
 - The player hits an NPC on the **throat** (Adam's apple, a zone in front of the neck) or the **groin** (a zone in front of and below the hips).
 - Only **men** (`CreatureData.gender == Male`; Men Only, default on).
 - Only where no **metal armor** is worn (Metal Armor Protects, default on): the game's own `ItemModuleWardrobe.isMetal` of what is worn on the neck (throat) or the legs channel (groin). Leather and cloth do not protect.
-- **Allowed Hits** (default Blunt Only: fists, kicks, maces, pommels; or Fists And Kicks Only; or Any Hit), **Min Hit Speed** (1.5 m/s), from the front (**Max Hit Angle** 100°). Player vs NPC only; only hits that do not kill.
+- **Allowed Hits** (default "Fists, Kicks, Blunt Weapons", enum `BluntOnly`: fists and kicks are Blunt damage in the game, plus maces, pommels; or Fists And Kicks Only; or "Any Hit, Blades Too"; menu titles from `Logic/OptionTitles`, renamed 2026-11-24 because "Blunt Only" read as if fists did not count), **Min Hit Speed** (1.5 m/s), from the front (**Max Hit Angle** 100°). Player vs NPC only; only hits that do not kill.
 
 **Effect**
 - **Throat**: hands to the throat, the game's stun sway, gagging, out of the fight for **Throat Duration** (3 s).
@@ -25,6 +25,7 @@ Blade & Sorcery (VR) mod built against the game's own `ThunderRoad.dll` (Unity +
 - **Groin alone can take him down too** (Nadi, 2026-11-22: "in die eier schlagen/treten alleine kann männer auch zu boden gehen lassen. 50% chance. throat balls 100%. chance einstellbar für alles"): **Groin Knockdown Chance** (50 %), rolled on every groin hit that gets to him; **Both Hits Knockdown Chance** (100 %); **Throat Reaction Chance** and **Groin Reaction Chance** (100 %) gate the single reactions. A hit that is shrugged off still counts as the first of both hits; a missed both-hits roll gives the second hit its own reaction. Going down from the groin alone looks the same as from both hits (Down Duration, Fall Style).
 - The same spot again while it reacts makes it last longer. **Drop Weapons**: when they go down (default), always, never; a hand that still holds something stays in the animation.
 - Voice: the game's own dialogs of the NPC's voice (`grappled` for the throat, `hit` then `heavybreath` for the groin), repeated every **Groan Interval**.
+- **Own Sounds** (Nadi, 2026-11-24: "choke bei throat und Owww bei eier schlag", own files chosen over the game's voices, which have neither): WAV files in the mod's `Sounds` folder, `throat*.wav` (start and every repeat) and `groin*.wav` (once at the start of Groin and Down; repeats stay `heavybreath`). No files or the option off: the game's dialogs as above. The release ships no sound files (only `Sounds/README.txt`); Nadi supplies them.
 
 **Animations: the game's own, no new assets** (decided here, cheapest route; own clips through the Unity SDK stay the route if these do not read right in the headset). Hands through the NPC's IK hand targets, as the game's bow and defense AI place hands; the bend and the fall through the animator's `Height` and `Injured` floats, as the game's burning NPC drops (and as Heel of Achilles' crawl does); the throat sway through the game's stun clip `HumanStun`.
 

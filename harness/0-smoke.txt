@@ -3,10 +3,13 @@
 # Run: tools/harness.sh harness/0-smoke.txt
 # Checks the defaults, so it must be the first scenario of a run (fresh prefix).
 wait-level
-expect-log [ModManager][ModOption][ThroatBalls] Loaded 34 ModOptions
+expect-log [ModManager][ModOption][ThroatBalls] Loaded 35 ModOptions
 expect-log [ThroatBalls] Loaded Throat Balls
 expect-log [ModManager][ThunderScript][ThroatBalls] Loaded ThunderScript: ThroatBalls.ThroatBallsScript
 expect-log [ThroatBalls] Enabled, listening to EventManager.onCreatureHit
+# Own sounds: the harness copy has throat-test.wav, groin-test.wav (32-bit float stereo) and groin-broken.wav (harness/fixtures).
+expect-log [ThroatBalls] Own sounds: skipped groin-broken.wav: not a WAV file
+expect-log [ThroatBalls] Own sounds: 1 throat, 1 groin
 
 option-exists ThroatBalls "Throat Balls Enabled" category="Throat Balls" type=Boolean save=true
 option-exists ThroatBalls "Men Only" category="Throat Balls" type=Boolean save=true
@@ -16,6 +19,7 @@ option-exists ThroatBalls "Min Hit Speed" category="Throat Balls" type=Single sa
 option-exists ThroatBalls "Max Hit Angle" category="Throat Balls" type=Single save=true
 option-exists ThroatBalls "Drop Weapons" category="Throat Balls" save=true
 option-exists ThroatBalls "Sounds" category="Throat Balls" type=Boolean save=true
+option-exists ThroatBalls "Own Sounds" category="Throat Balls" type=Boolean save=true
 option-exists ThroatBalls "Groan Interval" category="Throat Balls" type=Single save=true
 option-exists ThroatBalls "Throat Hits" category="Throat" type=Boolean save=true
 option-exists ThroatBalls "Throat Reaction Chance" category="Throat" type=Single save=true
@@ -47,7 +51,7 @@ option-exists ThroatBalls "Show Zones" category="Debug" type=Boolean save=true
 expect-option ThroatBalls "Throat Balls Enabled" true
 expect-option ThroatBalls "Men Only" true
 expect-option ThroatBalls "Metal Armor Protects" true
-expect-option ThroatBalls "Allowed Hits" BluntOnly
+expect-option ThroatBalls "Allowed Hits" "Fists, Kicks, Blunt Weapons"
 expect-option ThroatBalls "Min Hit Speed" 1.5
 expect-option ThroatBalls "Max Hit Angle" 100
 expect-option ThroatBalls "Drop Weapons" WhenTheyGoDown

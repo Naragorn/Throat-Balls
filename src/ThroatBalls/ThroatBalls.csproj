@@ -50,6 +50,10 @@
       <HintPath>$(BasManagedDir)/UnityEngine.PhysicsModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>$(BasManagedDir)/UnityEngine.AudioModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="UnityEngine.AnimationModule">
       <HintPath>$(BasManagedDir)/UnityEngine.AnimationModule.dll</HintPath>
       <Private>false</Private>
@@ -58,14 +62,16 @@
 
   <ItemGroup>
     <None Include="manifest.json" />
+    <None Include="Sounds/README.txt" />
   </ItemGroup>
 
-  <!-- Mod folder layout the game's ModManager expects: manifest.json + *.dll (+ .pdb). -->
+  <!-- Mod folder layout the game's ModManager expects: manifest.json + *.dll (+ .pdb); Sounds/ holds the player's own WAV files. -->
   <Target Name="PackageMod" AfterTargets="Build">
     <ItemGroup>
       <ModFiles Include="$(TargetPath);$(TargetDir)$(TargetName).pdb;$(MSBuildThisFileDirectory)manifest.json" />
     </ItemGroup>
     <Copy SourceFiles="@(ModFiles)" DestinationFolder="$(DistDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)Sounds/README.txt" DestinationFolder="$(DistDir)/Sounds" SkipUnchangedFiles="true" />
     <Message Importance="high" Text="Mod packaged: $(DistDir)" />
   </Target>
 

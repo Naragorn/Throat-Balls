@@ -8,7 +8,7 @@ set-option ThroatBalls "Throat Reaction Chance" 1
 set-option ThroatBalls "Groin Reaction Chance" 1
 set-option ThroatBalls "Groin Knockdown Chance" 0
 set-option ThroatBalls "Both Hits Knockdown Chance" 1
-set-option ThroatBalls "Allowed Hits" BluntOnly
+set-option ThroatBalls "Allowed Hits" "Fists, Kicks, Blunt Weapons"
 set-option ThroatBalls "Metal Armor Protects" false
 set-option ThroatBalls "Both Hits Take Him Down" true
 set-option ThroatBalls "Hit Order" EitherOrder

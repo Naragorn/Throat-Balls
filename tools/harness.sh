@@ -14,6 +14,12 @@ dotnet build "$ROOT/src/ThroatBalls/ThroatBalls.csproj" -c Release -nologo -v q
 if [ $# -eq 0 ]; then
   set -- "$ROOT"/harness/*.txt
 fi
+# The runs use a copy of the mod with test sounds in Sounds/ (harness/fixtures): the release ships none.
+STAGE="$ROOT/artifacts/harness-mod/ThroatBalls"
+rm -rf "$STAGE"
+mkdir -p "$(dirname "$STAGE")"
+cp -r "$ROOT/dist/ThroatBalls" "$STAGE"
+cp "$ROOT"/harness/fixtures/Sounds/* "$STAGE/Sounds/"
 exec python3 "$HARNESS/runner/bas_harness.py" \
-  --mod "$ROOT/dist/ThroatBalls" \
+  --mod "$STAGE" \
   --artifacts "$ROOT/artifacts/harness" --fresh-prefix "$@"
