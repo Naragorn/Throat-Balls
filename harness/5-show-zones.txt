@@ -1,0 +1,30 @@
+# Show Zones with a real hit: the hit marker must have no collider.
+# Found in the headset (Windows Player.log, 2026-11-23): every hit marker kept the sphere's collider. A marker
+# is made inside the game's contact callback, where Unity refuses DestroyImmediate ("Destroying components
+# immediately is not permitted during physics trigger/contact"); weapons then bumped into the 3 cm balls
+# ("Target physics material not found [/ThroatBalls.Hit]"). hit-npc calls the game's damage outside a contact
+# callback, so it cannot show this: here a held sword is thrust into a downed NPC through real physics
+# (BasHarness player-stab). Pierce is refused (Blunt Only), which still places a red marker.
+wait-level
+set-option ThroatBalls "Throat Balls Enabled" true
+set-option ThroatBalls "Debug Logging" true
+set-option ThroatBalls "Show Zones" true
+set-option ThroatBalls "Allowed Hits" BluntOnly
+frame-rate 90
+player-invincible true
+player-eyes
+player-grab SwordShortCommon
+
+spawn-npc HumanMale distance=1.1 angle=0 brain=HumanDummy
+hit-npc Torso velocity=1.5 push=3
+expect-npc state Destabilized within=2
+wait 1
+mark
+player-stab Torso speed=2
+expect-log [ThroatBalls] SKIP
+expect-log | HitNotAllowed
+wait 2
+expect-no-log immediately is not permitted
+expect-no-log [/ThroatBalls.Hit]
+expect-no-log Exception
+quit

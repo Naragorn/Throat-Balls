@@ -46,6 +46,6 @@ Blade & Sorcery (VR) mod built against the game's own `ThunderRoad.dll` (Unity +
 
 1. Project setup, pure logic with unit tests, game glue, Mod Menu, harness scenarios. **Done 2026-11-22** (see `DEVELOPMENT.md`, "Status").
 2. Headless runs on Linux (`tools/harness.sh`): smoke, throat, groin, both hits, refusals. **Done 2026-11-22**, 5/5 pass (one fix: the brain's tree setting is given back after the stun).
-3. Headset check: zone placement (Show Zones), how the hands, the bend and the fall look, real punches and kicks. Owed.
+3. Headset check: zone placement (Show Zones), how the hands, the bend and the fall look, real punches and kicks. **Started 2026-11-23**: real punches count; hit markers kept a collider (fixed v0.2.2, `5-show-zones.txt`). Owed: both hits in a row, getting up, the look.
 
 **Deploy: always both installs.** `tools/deploy.sh` (Linux) builds Release, refuses uncommitted `src` changes, copies DLL + manifest into the Linux and the Windows Mods folder and checks the md5.

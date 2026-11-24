@@ -8,7 +8,7 @@ namespace ThroatBalls
     /// <summary>
     /// Show Zones: the throat and groin zones on every living NPC as see-through spheres, and a short marker
     /// on each judged hit (green counted, red refused). Unity gizmos do not render in a built game, so these
-    /// are plain sphere meshes without colliders (the Heel of Achilles approach). Costs nothing while off.
+    /// are plain sphere meshes whose collider is turned off and removed (the Heel of Achilles approach). Costs nothing while off.
     /// </summary>
     internal sealed class ZoneMarkers
     {
@@ -144,8 +144,12 @@ namespace ThroatBalls
         {
             var sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             sphere.name = name;
-            // Immediately, so the marker never takes part in a physics step.
-            Object.DestroyImmediate(sphere.GetComponent<Collider>());
+            // A hit marker is made inside the game's contact callback, where Unity refuses DestroyImmediate and the
+            // collider stayed: weapons bumped into the marker (headset log, 2026-11-23). Disabled at once, so it never
+            // takes part in a physics step, and destroyed at the end of the frame.
+            var collider = sphere.GetComponent<Collider>();
+            collider.enabled = false;
+            Object.Destroy(collider);
             var material = MaterialFor(color);
             if (material != null)
             {

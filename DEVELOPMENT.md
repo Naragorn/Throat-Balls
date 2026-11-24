@@ -9,9 +9,10 @@ Everything about how the mod is built and tested: versions, the game APIs used a
 | 1. Project, pure logic + unit tests, game glue, Mod Menu, scenarios | built 2026-11-22 on Windows. **Unit tests: 169/169 pass** (`dotnet test`; written first each time: the first run failed to compile with the logic missing (110 errors), the chance tests failed to compile before the rolls existed (9 errors); logs in `artifacts/tests/`, not committed). **Release build: 0 warnings, 0 errors** against the Windows install's `ThunderRoad.dll`. All five scenarios parse with BasHarness 1f678cf's parser (0 errors). |
 | 1b. Chances (v0.2.0, Nadi 2026-11-22) | Groin Knockdown Chance (50 %), Both Hits Knockdown Chance (100 %), Throat and Groin Reaction Chance (100 %); 25 new unit tests (`ReactionChanceTests`, option specs). |
 | 2. Headless runs (fix: v0.2.1) | **5/5 pass** on Linux (2026-11-22, `artifacts/harness/20261122-204123`). The first run failed `3-combo` (4/5): after the brain woke, the HumanDummy fought, walked off and the next groin hit landed 0.30 m from the zone. Cause: `SkillDiscombobulate.BrainToggle(conscious: true)` sets `brain.instance.updateTree = true`, so a brain that ran no tree (HumanDummy: `updateTree` false in `Brain_HumanDummy.json`) came back fighting. Fix: the reaction keeps `updateTree` from before the stun and gives it back after the wake (`Reaction.TreeWasRunning`). `1-throat` and `3-combo` now check `expect-npc tree False` after each wake (red before the fix: `tree is 'True'`, green after). Needs BasHarness with `expect-npc tree` (2026-11-22). |
-| 3. Headset | **Not done.** |
+| 3. Headset | **Started** 2026-11-23 (Windows, Debug Logging and Show Zones on, `Player.log`): throat and groin punches counted (`LOW BLOW` at 2.3 to 10.2 m/s), groin down with Curl Up, throat made longer by a second hit; slashes refused (`HitNotAllowed`), women refused. Not seen yet: both hits one after the other, getting up after Down Duration (every downed NPC was killed first), how it looks. |
+| 3a. Fix: hit markers without collider (v0.2.2) | The headset log had 519 Unity errors "Destroying components immediately is not permitted during physics trigger/contact" and 1258 game warnings "Target physics material not found [/ThroatBalls.Hit]". A hit marker is made in the game's contact callback, where Unity refuses `DestroyImmediate`, so the marker kept its sphere collider and weapons bumped into it for 5 s. Now the collider is disabled at once and destroyed at the end of the frame. Red/green: `5-show-zones.txt` (`artifacts/harness/20261124-084502` red, `20261124-084545` green). Only with Show Zones on. |
 
-The headless runs are the only in-game evidence so far (no headset). Every other "verified" below means read in the decompiled DLL and compiled against it.
+The headless runs and one headset session (2026-11-23) are the in-game evidence so far. Every other "verified" below means read in the decompiled DLL and compiled against it.
 
 ## Versions
 
@@ -105,10 +106,11 @@ Scenarios (Linux, `tools/harness.sh`; one fresh prefix per run, files run in nam
 | `2-groin.txt` | groin punch at Groin Knockdown Chance 0 %: Groin start, picture bent over, end after 4 s; at 100 %: Down start (groin), picture down, end |
 | `3-combo.txt` | throat then groin: Down start (both hits), film + picture down, a hit while down ignored, end, alive, no tree after the wake; Ragdoll: Destabilized, held, then up, no tree |
 | `4-refusals.txt` | woman refused, then reacts with Men Only off; second hit after the window starts its own reaction; mod off mid-reaction ends it |
+| `5-show-zones.txt` | Show Zones with a real physics hit (`player-stab` into a downed NPC, refused as Pierce): no "Destroying components immediately" error, nothing bumps into `ThroatBalls.Hit` |
 
 Every scenario but the smoke pins the four chances (reactions 100 %, groin knockdown 0 % unless the case tests it, both hits 100 %), so no run depends on a roll.
 
-`hit-npc` raises the hit through `Creature.Damage` (no physics contact); the contact point is the part's position moved with `at=` (BasHarness 1f678cf, added for this mod).
+`hit-npc` raises the hit through `Creature.Damage` (no physics contact, so it runs outside the contact callback; `5-show-zones.txt` uses a real stab for that reason); the contact point is the part's position moved with `at=` (BasHarness 1f678cf, added for this mod).
 
 ## Build
 
