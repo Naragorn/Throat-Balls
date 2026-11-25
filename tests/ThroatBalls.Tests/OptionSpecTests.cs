@@ -76,6 +76,17 @@ namespace ThroatBalls.Tests
         }
 
         [Fact]
+        public void Heavy_punch_starts_at_4_5_m_s()
+        {
+            // The seven counted hits of the headset session 2026-11-23: 2.3, 2.6, 3.2, 4.3, 4.5, 6.6, 10.2 m/s.
+            // Their median (4.3) on the slider's 0.5 step; Nadi 2026-11-25: "leicht abspielen wenn der schlag auch
+            // leichter ist und schwer wenn er schwerer ist".
+            Assert.Equal(4.5f, OptionSpecs.HeavyPunchSpeed.Default);
+            Assert.Equal("4.5 m/s", OptionSpecs.HeavyPunchSpeed.Label(OptionSpecs.HeavyPunchSpeed.Default));
+            Assert.Contains(OptionSpecs.HeavyPunchSpeed, OptionSpecs.All);
+        }
+
+        [Fact]
         public void Chances_default_as_asked()
         {
             // Nadi 2026-11-22: groin alone 50 %, both hits 100 %, every chance adjustable.

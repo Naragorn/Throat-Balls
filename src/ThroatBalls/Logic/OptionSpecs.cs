@@ -13,6 +13,14 @@ namespace ThroatBalls.Logic
         public static readonly FloatOptionSpec MinHitSpeed =
             new FloatOptionSpec("Min Hit Speed", 0f, 6f, 0.5f, 1.5f, OptionUnit.MetersPerSecond);
 
+        /// <summary>
+        /// From this impact speed on, the punch with the first choke is one of the game's heavy ones. 4.5 m/s: the
+        /// median of the seven counted hits of the headset session 2026-11-23 (2.3 to 10.2 m/s, median 4.3) on the
+        /// slider's step.
+        /// </summary>
+        public static readonly FloatOptionSpec HeavyPunchSpeed =
+            new FloatOptionSpec("Heavy Punch Speed", 0f, 10f, 0.5f, 4.5f, OptionUnit.MetersPerSecond);
+
         public static readonly FloatOptionSpec MaxHitAngle =
             new FloatOptionSpec("Max Hit Angle", 30f, 180f, 5f, 100f, OptionUnit.Degrees);
 
@@ -82,6 +90,7 @@ namespace ThroatBalls.Logic
         public static readonly IReadOnlyList<FloatOptionSpec> All = new[]
         {
             MinHitSpeed,
+            HeavyPunchSpeed,
             MaxHitAngle,
             ThroatZoneSize,
             ThroatForwardOffset,

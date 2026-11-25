@@ -3,17 +3,21 @@
 # Run: tools/harness.sh harness/0-smoke.txt
 # Checks the defaults, so it must be the first scenario of a run (fresh prefix).
 wait-level
-expect-log [ModManager][ModOption][ThroatBalls] Loaded 36 ModOptions
+expect-log [ModManager][ModOption][ThroatBalls] Loaded 38 ModOptions
 expect-log [ThroatBalls] Loaded Throat Balls
 expect-log [ModManager][ThunderScript][ThroatBalls] Loaded ThunderScript: ThroatBalls.ThroatBallsScript
 expect-log [ThroatBalls] Enabled, listening to EventManager.onCreatureHit
-# Own sounds: the harness copy has throat-test.wav, groin-test.wav (32-bit float stereo) and groin-broken.wav (harness/fixtures).
+# Own sounds: the shipped throat-choke.wav (ZapSplat, 16-bit mono 48 kHz) and the harness's throat-test.wav,
+# groin-test.wav (32-bit float stereo) and groin-broken.wav (harness/fixtures).
 expect-log [ThroatBalls] Own sounds: skipped groin-broken.wav: not a WAV file
-expect-log [ThroatBalls] Own sounds: 1 throat, 1 groin
-# The game clips Nadi picked (GameSounds): all four breathless-death clips and the two groin grunts are found by name.
-expect-log [ThroatBalls] Game sounds: 4 throat, 2 groin
+expect-no-log [ThroatBalls] Own sounds: skipped throat-choke.wav
+expect-log [ThroatBalls] Own sounds: 2 throat, 1 groin
+# The game clips Nadi picked (GameSounds): all four breathless-death clips, the two groin grunts and the eight
+# punches of the game's own fist hits (Collision.Punch, Collision.PunchHeavy) are found by name.
+expect-log [ThroatBalls] Game sounds: 4 throat, 2 groin, 8 punch
 expect-no-log [ThroatBalls] Game sounds: no audio group
 expect-no-log is not in VoiceMale
+expect-no-log is not in Punch
 
 option-exists ThroatBalls "Throat Balls Enabled" category="Throat Balls" type=Boolean save=true
 option-exists ThroatBalls "Men Only" category="Throat Balls" type=Boolean save=true
@@ -29,6 +33,8 @@ option-exists ThroatBalls "Throat Hits" category="Throat" type=Boolean save=true
 option-exists ThroatBalls "Throat Reaction Chance" category="Throat" type=Single save=true
 option-exists ThroatBalls "Throat Duration" category="Throat" type=Single save=true
 option-exists ThroatBalls "Throat Sound" category="Throat" save=true
+option-exists ThroatBalls "Punch Sound" category="Throat" type=Boolean save=true
+option-exists ThroatBalls "Heavy Punch Speed" category="Throat" type=Single save=true
 option-exists ThroatBalls "Throat Zone Size" category="Throat" type=Single save=true
 option-exists ThroatBalls "Throat Forward Offset" category="Throat" type=Single save=true
 option-exists ThroatBalls "Throat Height Offset" category="Throat" type=Single save=true
@@ -63,6 +69,8 @@ expect-option ThroatBalls "Drop Weapons" WhenTheyGoDown
 expect-option ThroatBalls "Throat Duration" 3
 expect-option ThroatBalls "Throat Zone Size" 0.09
 expect-option ThroatBalls "Throat Sound" Random
+expect-option ThroatBalls "Punch Sound" true
+expect-option ThroatBalls "Heavy Punch Speed" 4.5
 expect-option ThroatBalls "Groin Duration" 4
 expect-option ThroatBalls "Time Between Hits" 4
 expect-option ThroatBalls "Down Duration" 8

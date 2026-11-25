@@ -68,7 +68,80 @@ namespace ThroatBalls.Logic
             new GameClip("Bas.AudioGroup.Voice.MaleEdwyn.Hit", "Male_Hurt_10_Edwyn"),
         };
 
+        private const string PunchLight = "Bas.AudioGroup.Collision.Punch";
+        private const string PunchHeavy = "Bas.AudioGroup.Collision.PunchHeavy";
+
+        /// <summary>
+        /// The game's own hits of fists and kicks (Nadi, 2026-11-25: "die zusammen mit rand(der h2h punch sounds aus dem
+        /// game) zusammenlegen"): the two audio groups the game's HitRagdoll effect plays for the Punch, Kick and
+        /// KickTracked damagers (catalog 2026-11-25), light then heavy. One of them comes with the first choke.
+        /// </summary>
+        public static readonly IReadOnlyList<GameClip> Punch = new[]
+        {
+            new GameClip(PunchLight, "SFX_punch_intens1_01"),
+            new GameClip(PunchLight, "SFX_punch_intens1_02"),
+            new GameClip(PunchLight, "SFX_punch_intens1_03"),
+            new GameClip(PunchLight, "SFX_punch_intens1_04"),
+            new GameClip(PunchHeavy, "SFX_punch_intens2_01"),
+            new GameClip(PunchHeavy, "SFX_punch_intens2_02"),
+            new GameClip(PunchHeavy, "SFX_punch_intens2_03"),
+            new GameClip(PunchHeavy, "SFX_punch_intens2_04"),
+        };
+
+        /// <summary>The game's own punch is never louder than this: HitRagdoll's volume curves for both groups top out at 0.6.</summary>
+        public const float PunchVolume = 0.6f;
+
         private static readonly IReadOnlyList<GameClip> NoClips = new GameClip[0];
+
+        /// <summary>
+        /// Light or heavy (Nadi, 2026-11-25: "leicht abspielen wenn der schlag auch leichter ist und schwer wenn er
+        /// schwerer ist"): a hit from <paramref name="heavyFrom"/> m/s on gets a heavy punch, a slower one a light one.
+        /// </summary>
+        public static bool HeavyPunch(float impactSpeed, float heavyFrom)
+        {
+            return impactSpeed >= heavyFrom;
+        }
+
+        /// <summary>
+        /// Which of the <see cref="Punch"/> clips may play: the loaded ones of the hit's weight. When none of that weight
+        /// loaded, the loaded ones of the other weight, so a hit never goes without a punch because of one group.
+        /// </summary>
+        public static bool[] PunchChoices(bool[] loaded, bool heavy)
+        {
+            var choices = new bool[Punch.Count];
+            if (loaded == null)
+            {
+                return choices;
+            }
+            var any = false;
+            for (var i = 0; i < choices.Length && i < loaded.Length; i++)
+            {
+                choices[i] = loaded[i] && IsHeavy(Punch[i]) == heavy;
+                any |= choices[i];
+            }
+            if (!any)
+            {
+                for (var i = 0; i < choices.Length && i < loaded.Length; i++)
+                {
+                    choices[i] = loaded[i];
+                }
+            }
+            return choices;
+        }
+
+        private static bool IsHeavy(GameClip clip)
+        {
+            return clip.Address == PunchHeavy;
+        }
+
+        /// <summary>
+        /// A punch comes with the first choke of a throat reaction while Punch Sound is on. The repeats have none: he
+        /// chokes again, nobody hit him. Groin and down have none either.
+        /// </summary>
+        public static bool PunchDue(ReactionKind kind, bool repeat, bool punchOn)
+        {
+            return punchOn && !repeat && kind == ReactionKind.Throat;
+        }
 
         public static IReadOnlyList<GameClip> For(SoundSlot slot)
         {
@@ -83,15 +156,18 @@ namespace ThroatBalls.Logic
             }
         }
 
-        /// <summary>Every audio group the clips are in, each once, in the order of <see cref="Throat"/> then <see cref="Groin"/>.</summary>
+        /// <summary>Every audio group the clips are in, each once, in the order of <see cref="Throat"/>, <see cref="Groin"/>, <see cref="Punch"/>.</summary>
         public static IReadOnlyList<string> Addresses()
         {
             var addresses = new List<string>();
-            foreach (var clip in Concat(Throat, Groin))
+            foreach (var list in new[] { Throat, Groin, Punch })
             {
-                if (!addresses.Contains(clip.Address))
+                foreach (var clip in list)
                 {
-                    addresses.Add(clip.Address);
+                    if (!addresses.Contains(clip.Address))
+                    {
+                        addresses.Add(clip.Address);
+                    }
                 }
             }
             return addresses;
@@ -167,18 +243,6 @@ namespace ThroatBalls.Logic
                 return SoundSource.Own;
             }
             return gameCount > 0 ? SoundSource.Game : SoundSource.Dialog;
-        }
-
-        private static IEnumerable<GameClip> Concat(IReadOnlyList<GameClip> a, IReadOnlyList<GameClip> b)
-        {
-            foreach (var clip in a)
-            {
-                yield return clip;
-            }
-            foreach (var clip in b)
-            {
-                yield return clip;
-            }
         }
     }
 }

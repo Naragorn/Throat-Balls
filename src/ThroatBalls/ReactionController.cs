@@ -30,7 +30,7 @@ namespace ThroatBalls
             return creature != null && reactions.TryGetValue(creature.GetInstanceID(), out var r) && r.State.IsActive;
         }
 
-        public void OnLowBlow(Creature creature, HitZone zone, float now)
+        public void OnLowBlow(Creature creature, HitZone zone, float impactSpeed, float now)
         {
             var id = creature.GetInstanceID();
             if (!reactions.TryGetValue(id, out var r))
@@ -42,6 +42,7 @@ namespace ThroatBalls
             var rolls = new ReactionRolls((float)dice.NextDouble(), (float)dice.NextDouble(), (float)dice.NextDouble());
             var step = ReactionRules.OnHit(r.State, zone, now, ModOptions.Fill(reactionSettings), rolls);
             r.State = step.Next;
+            r.HitSpeed = impactSpeed;
             switch (step.Action)
             {
                 case ReactionAction.Start:
@@ -169,7 +170,10 @@ namespace ThroatBalls
                 + (kind == ReactionKind.Down ? " | fall " + ModOptions.FallStyle : string.Empty));
         }
 
-        /// <summary>One sound: an own file or a game clip (<see cref="SoundBank"/>), else the voice's own line.</summary>
+        /// <summary>
+        /// One sound: an own file or a game clip (<see cref="SoundBank"/>), else the voice's own line. The first choke
+        /// also gets one of the game's punches (<see cref="GameSounds.PunchDue"/>).
+        /// </summary>
         private void Voice(Reaction r, ReactionKind kind, bool repeat)
         {
             var slot = OwnSounds.SlotFor(kind, repeat);
@@ -177,6 +181,10 @@ namespace ThroatBalls
             if (source == SoundSource.Dialog)
             {
                 ReactionBody.Speak(r, repeat ? PoseRules.RepeatSound(kind) : PoseRules.StartSound(kind));
+            }
+            if (Sounds != null && GameSounds.PunchDue(kind, repeat, ModOptions.PunchSound))
+            {
+                Sounds.PlayPunch(r, GameSounds.HeavyPunch(r.HitSpeed, ModOptions.HeavyPunchSpeed));
             }
         }
 

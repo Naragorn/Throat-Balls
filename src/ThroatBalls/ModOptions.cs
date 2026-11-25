@@ -67,7 +67,7 @@ namespace ThroatBalls
         [ModOptionOrder(7)]
         public static bool Sounds = true;
 
-        [ModOption("Own Sounds", "Plays the sound files in the mod's Sounds folder: throat*.wav when he chokes, groin*.wav for the ow. Off, or no files: the game's sounds.")]
+        [ModOption("Own Sounds", "Plays the sound files in the mod's Sounds folder: throat*.wav when he chokes (the mod brings one), groin*.wav for the ow. Off, or no files: the game's sounds.")]
         [ModOptionCategory(MainCategory, 0)]
         [ModOptionOrder(8)]
         public static bool PlayOwnSounds = true;
@@ -97,26 +97,37 @@ namespace ThroatBalls
         [ModOptionSlider]
         public static float ThroatDuration = OptionSpecs.ThroatDuration.Default;
 
-        [ModOption("Throat Sound", "Which of the game's four choke sounds he makes. Random: a different one each time.", nameof(ThroatSoundValues))]
+        [ModOption("Throat Sound", "Which of the game's four choke sounds he makes when Own Sounds is off. Random: a different one each time.", nameof(ThroatSoundValues))]
         [ModOptionCategory(ThroatCategory, 1)]
         [ModOptionOrder(3)]
         public static ThroatSound ThroatSound = ThroatSound.Random;
 
-        [ModOption("Throat Zone Size", "How big the spot is that counts as the throat.", nameof(ThroatZoneSizeValues))]
+        [ModOption("Punch Sound", "Adds one of the game's punch sounds to his first choke. The game plays its own hit sound as well.")]
         [ModOptionCategory(ThroatCategory, 1)]
         [ModOptionOrder(4)]
+        public static bool PunchSound = true;
+
+        [ModOption("Heavy Punch Speed", "From this hit speed on, the punch sounds heavy. Slower hits get a light one.", nameof(HeavyPunchSpeedValues))]
+        [ModOptionCategory(ThroatCategory, 1)]
+        [ModOptionOrder(5)]
+        [ModOptionSlider]
+        public static float HeavyPunchSpeed = OptionSpecs.HeavyPunchSpeed.Default;
+
+        [ModOption("Throat Zone Size", "How big the spot is that counts as the throat.", nameof(ThroatZoneSizeValues))]
+        [ModOptionCategory(ThroatCategory, 1)]
+        [ModOptionOrder(6)]
         [ModOptionSlider]
         public static float ThroatZoneSize = OptionSpecs.ThroatZoneSize.Default;
 
         [ModOption("Throat Forward Offset", "Moves the throat spot forward or back. Turn on Show Zones to see it.", nameof(ThroatForwardOffsetValues))]
         [ModOptionCategory(ThroatCategory, 1)]
-        [ModOptionOrder(5)]
+        [ModOptionOrder(7)]
         [ModOptionSlider]
         public static float ThroatForwardOffset = OptionSpecs.ThroatForwardOffset.Default;
 
         [ModOption("Throat Height Offset", "Moves the throat spot up or down. Turn on Show Zones to see it.", nameof(ThroatHeightOffsetValues))]
         [ModOptionCategory(ThroatCategory, 1)]
-        [ModOptionOrder(6)]
+        [ModOptionOrder(8)]
         [ModOptionSlider]
         public static float ThroatHeightOffset = OptionSpecs.ThroatHeightOffset.Default;
 
@@ -294,6 +305,7 @@ namespace ThroatBalls
         }
 
         public static ModOptionParameter[] MinHitSpeedValues() => ToParameters(OptionSpecs.MinHitSpeed);
+        public static ModOptionParameter[] HeavyPunchSpeedValues() => ToParameters(OptionSpecs.HeavyPunchSpeed);
 
         public static ModOptionParameter[] MaxHitAngleValues() => ToParameters(OptionSpecs.MaxHitAngle);
 

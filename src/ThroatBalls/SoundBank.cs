@@ -13,6 +13,7 @@ namespace ThroatBalls
     /// applies): the player's own files from the mod's Sounds folder (<see cref="OwnSounds"/>, read once when the mod
     /// loads) and the game clips picked for the throat and the groin (<see cref="GameSounds"/>, their audio groups
     /// loaded once by address, as the game's voices load them). Which of them plays: <see cref="GameSounds.SourceFor"/>.
+    /// The punch with the first choke (<see cref="PlayPunch"/>) goes through the Effect mixer, as the game's own hits do.
     /// </summary>
     internal sealed class SoundBank
     {
@@ -49,6 +50,10 @@ namespace ThroatBalls
             [SoundSlot.Throat] = -1,
             [SoundSlot.Groin] = -1,
         };
+
+        private readonly AudioClip[] punch = new AudioClip[GameSounds.Punch.Count];
+        private readonly bool[] punchLoaded = new bool[GameSounds.Punch.Count];
+        private int lastPunch = -1;
 
         private readonly System.Random dice = new System.Random();
         private int groupsPending;
@@ -125,7 +130,29 @@ namespace ThroatBalls
             return source;
         }
 
-        /// <summary>Removes the reaction's audio source (it ends with the reaction; a sound still playing is cut).</summary>
+        /// <summary>
+        /// One of the game's punch clips (<see cref="GameSounds.Punch"/>) of the hit's weight, never the same twice in a
+        /// row, from the NPC's head through the game's Effect mixer (where the game's own hit sounds play), as loud as the
+        /// game's own punch at its loudest. Its own audio source, so the choke on the voice source plays on at the same time.
+        /// </summary>
+        public void PlayPunch(Reaction r, bool heavy)
+        {
+            var index = GameSounds.Pick(GameSounds.PunchChoices(punchLoaded, heavy), -1, lastPunch, dice.NextDouble());
+            var player = index >= 0 ? SourceOf(r, ref r.Punch, "ThroatBalls.Punch", AudioMixerName.Effect) : null;
+            if (player == null)
+            {
+                ModLog.Verbose("SOUND | " + GameAdapters.Label(r.Creature) + " | " + (index < 0 ? "no punch clip" : "no head to play from") + " for the punch");
+                return;
+            }
+            lastPunch = index;
+            var clip = punch[index];
+            player.PlayOneShot(clip, GameSounds.PunchVolume);
+            ModLog.Verbose("SOUND | " + GameAdapters.Label(r.Creature) + " | game punch '" + clip.name + "' ("
+                + clip.length.ToString("0.0", CultureInfo.InvariantCulture) + " s) | " + (heavy ? "heavy" : "light") + ", hit "
+                + r.HitSpeed.ToString("0.0", CultureInfo.InvariantCulture) + " m/s");
+        }
+
+        /// <summary>Removes the reaction's audio sources (they end with the reaction; a sound still playing is cut).</summary>
         public static void Release(Reaction r)
         {
             if (r.Voice != null)
@@ -133,6 +160,11 @@ namespace ThroatBalls
                 UnityEngine.Object.Destroy(r.Voice.gameObject);
             }
             r.Voice = null;
+            if (r.Punch != null)
+            {
+                UnityEngine.Object.Destroy(r.Punch.gameObject);
+            }
+            r.Punch = null;
         }
 
         private void OnGroupLoaded(string address, ScriptableObject group)
@@ -145,20 +177,21 @@ namespace ThroatBalls
             }
             else
             {
-                Take(SoundSlot.Throat, address, container);
-                Take(SoundSlot.Groin, address, container);
+                Take(GameSounds.Throat, game[SoundSlot.Throat], gameLoaded[SoundSlot.Throat], address, container);
+                Take(GameSounds.Groin, game[SoundSlot.Groin], gameLoaded[SoundSlot.Groin], address, container);
+                Take(GameSounds.Punch, punch, punchLoaded, address, container);
             }
             groupsPending--;
             if (groupsPending == 0)
             {
-                ModLog.Info("Game sounds: " + Number(GameCount(SoundSlot.Throat)) + " throat, " + Number(GameCount(SoundSlot.Groin)) + " groin");
+                ModLog.Info("Game sounds: " + Number(GameCount(SoundSlot.Throat)) + " throat, " + Number(GameCount(SoundSlot.Groin)) + " groin, "
+                    + Number(Count(punchLoaded)) + " punch");
             }
         }
 
-        /// <summary>The slot's clips of this audio group, found by name; a missing one is named in the log with what the group has.</summary>
-        private void Take(SoundSlot slot, string address, AudioContainer container)
+        /// <summary>The wanted clips of this audio group, found by name; a missing one is named in the log with what the group has.</summary>
+        private static void Take(IReadOnlyList<GameClip> wanted, AudioClip[] clips, bool[] loaded, string address, AudioContainer container)
         {
-            var wanted = GameSounds.For(slot);
             for (var i = 0; i < wanted.Count; i++)
             {
                 if (wanted[i].Address != address)
@@ -166,8 +199,8 @@ namespace ThroatBalls
                     continue;
                 }
                 var clip = container.sounds.Find(c => c != null && c.name == wanted[i].Clip);
-                game[slot][i] = clip;
-                gameLoaded[slot][i] = clip != null;
+                clips[i] = clip;
+                loaded[i] = clip != null;
                 if (clip == null)
                 {
                     ModLog.Warn("Game sounds: " + wanted[i].Clip + " is not in " + container.name + " (" + address + "), it has: "
@@ -199,10 +232,11 @@ namespace ThroatBalls
 
         private int GameCount(SoundSlot slot)
         {
-            if (!gameLoaded.TryGetValue(slot, out var loaded))
-            {
-                return 0;
-            }
+            return gameLoaded.TryGetValue(slot, out var loaded) ? Count(loaded) : 0;
+        }
+
+        private static int Count(bool[] loaded)
+        {
             var count = 0;
             foreach (var present in loaded)
             {
@@ -216,16 +250,22 @@ namespace ThroatBalls
 
         private static AudioSource SourceOf(Reaction r)
         {
-            if (r.Voice != null)
+            return SourceOf(r, ref r.Voice, "ThroatBalls.Voice", AudioMixerName.Voice);
+        }
+
+        /// <summary>The reaction's audio source in <paramref name="slot"/> on the NPC's head, made on first use; null without a head.</summary>
+        private static AudioSource SourceOf(Reaction r, ref AudioSource slot, string name, AudioMixerName mixer)
+        {
+            if (slot != null)
             {
-                return r.Voice;
+                return slot;
             }
             var head = r.Creature.ragdoll != null ? r.Creature.ragdoll.headPart : null;
             if (head == null)
             {
                 return null;
             }
-            var holder = new GameObject("ThroatBalls.Voice");
+            var holder = new GameObject(name);
             holder.transform.SetParent(head.transform, false);
             var source = holder.AddComponent<AudioSource>();
             source.playOnAwake = false;
@@ -233,8 +273,8 @@ namespace ThroatBalls
             source.rolloffMode = AudioRolloffMode.Linear;
             source.minDistance = MinDistance;
             source.maxDistance = MaxDistance;
-            source.outputAudioMixerGroup = ThunderRoadSettings.GetAudioMixerGroup(AudioMixerName.Voice);
-            r.Voice = source;
+            source.outputAudioMixerGroup = ThunderRoadSettings.GetAudioMixerGroup(mixer);
+            slot = source;
             return source;
         }
 

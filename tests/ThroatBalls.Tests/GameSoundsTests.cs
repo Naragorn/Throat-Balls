@@ -41,8 +41,127 @@ namespace ThroatBalls.Tests
         public void Every_audio_group_is_loaded_once()
         {
             Assert.Equal(
-                new[] { "Bas.AudioGroup.Voice.Male.BreathlessDeath", "Bas.AudioGroup.Voice.MaleCottage2.Hit", "Bas.AudioGroup.Voice.MaleEdwyn.Hit" },
+                new[]
+                {
+                    "Bas.AudioGroup.Voice.Male.BreathlessDeath", "Bas.AudioGroup.Voice.MaleCottage2.Hit", "Bas.AudioGroup.Voice.MaleEdwyn.Hit",
+                    "Bas.AudioGroup.Collision.Punch", "Bas.AudioGroup.Collision.PunchHeavy",
+                },
                 GameSounds.Addresses());
+        }
+
+        // ---- A punch with the choke (Nadi, 2026-11-25: "zusammen mit rand(der h2h punch sounds aus dem game)") ----
+
+        [Fact]
+        public void Punch_is_the_games_own_fist_and_kick_hits_light_then_heavy()
+        {
+            Assert.Equal(
+                new[]
+                {
+                    "Bas.AudioGroup.Collision.Punch|SFX_punch_intens1_01",
+                    "Bas.AudioGroup.Collision.Punch|SFX_punch_intens1_02",
+                    "Bas.AudioGroup.Collision.Punch|SFX_punch_intens1_03",
+                    "Bas.AudioGroup.Collision.Punch|SFX_punch_intens1_04",
+                    "Bas.AudioGroup.Collision.PunchHeavy|SFX_punch_intens2_01",
+                    "Bas.AudioGroup.Collision.PunchHeavy|SFX_punch_intens2_02",
+                    "Bas.AudioGroup.Collision.PunchHeavy|SFX_punch_intens2_03",
+                    "Bas.AudioGroup.Collision.PunchHeavy|SFX_punch_intens2_04",
+                },
+                GameSounds.Punch.Select(c => c.Address + "|" + c.Clip));
+        }
+
+        [Theory]
+        [InlineData(ReactionKind.Throat, false, true, true)] // the first choke, Punch Sound on
+        [InlineData(ReactionKind.Throat, false, false, false)] // Punch Sound off
+        [InlineData(ReactionKind.Throat, true, true, false)] // the repeats: he chokes again, nobody hit him
+        [InlineData(ReactionKind.Groin, false, true, false)]
+        [InlineData(ReactionKind.Down, false, true, false)]
+        [InlineData(ReactionKind.Groin, true, true, false)]
+        [InlineData(ReactionKind.None, false, true, false)]
+        public void A_punch_comes_only_with_the_first_choke(ReactionKind kind, bool repeat, bool punchOn, bool expected)
+        {
+            Assert.Equal(expected, GameSounds.PunchDue(kind, repeat, punchOn));
+        }
+
+        // ---- Light or heavy by the hit (Nadi, 2026-11-25: "leicht ... wenn der schlag auch leichter ist") ----
+
+        [Theory]
+        [InlineData(3.0f, 4.5f, false)]
+        [InlineData(4.49f, 4.5f, false)]
+        [InlineData(4.5f, 4.5f, true)] // from the setting on: heavy
+        [InlineData(10.2f, 4.5f, true)]
+        [InlineData(0f, 0f, true)] // Heavy Punch Speed 0: always heavy
+        public void A_hit_from_heavy_punch_speed_on_is_heavy(float speed, float heavyFrom, bool heavy)
+        {
+            Assert.Equal(heavy, GameSounds.HeavyPunch(speed, heavyFrom));
+        }
+
+        [Fact]
+        public void A_light_hit_picks_among_the_light_punches_only()
+        {
+            var all = Enumerable.Repeat(true, GameSounds.Punch.Count).ToArray();
+            Assert.Equal(new[] { true, true, true, true, false, false, false, false }, GameSounds.PunchChoices(all, heavy: false));
+        }
+
+        [Fact]
+        public void A_heavy_hit_picks_among_the_heavy_punches_only()
+        {
+            var all = Enumerable.Repeat(true, GameSounds.Punch.Count).ToArray();
+            Assert.Equal(new[] { false, false, false, false, true, true, true, true }, GameSounds.PunchChoices(all, heavy: true));
+        }
+
+        [Fact]
+        public void Without_a_loaded_punch_of_its_weight_the_other_weight_plays()
+        {
+            var lightOnly = new[] { true, false, true, false, false, false, false, false };
+            Assert.Equal(lightOnly, GameSounds.PunchChoices(lightOnly, heavy: true));
+            var heavyOnly = new[] { false, false, false, false, false, true, false, false };
+            Assert.Equal(heavyOnly, GameSounds.PunchChoices(heavyOnly, heavy: false));
+        }
+
+        [Fact]
+        public void A_missing_punch_of_the_right_weight_is_skipped()
+        {
+            var someHeavy = new[] { true, true, true, true, false, true, true, false };
+            Assert.Equal(new[] { false, false, false, false, false, true, true, false }, GameSounds.PunchChoices(someHeavy, heavy: true));
+        }
+
+        [Fact]
+        public void No_punch_loaded_plays_none()
+        {
+            var none = new bool[GameSounds.Punch.Count];
+            Assert.Equal(-1, GameSounds.Pick(GameSounds.PunchChoices(none, heavy: true), -1, -1, 0.5));
+            Assert.Equal(-1, GameSounds.Pick(GameSounds.PunchChoices(null, heavy: false), -1, -1, 0.5));
+        }
+
+        [Fact]
+        public void Heavy_punches_never_repeat_and_reach_every_other_heavy_one()
+        {
+            var all = Enumerable.Repeat(true, GameSounds.Punch.Count).ToArray();
+            var heavy = GameSounds.PunchChoices(all, heavy: true);
+            var seen = new HashSet<int>(Rolls().Select(roll => GameSounds.Pick(heavy, -1, 5, roll)));
+            Assert.Equal(new[] { 4, 6, 7 }, seen.OrderBy(i => i));
+            // The last punch was a light one: every heavy one can come.
+            seen = new HashSet<int>(Rolls().Select(roll => GameSounds.Pick(heavy, -1, 1, roll)));
+            Assert.Equal(new[] { 4, 5, 6, 7 }, seen.OrderBy(i => i));
+        }
+
+        [Fact]
+        public void The_punch_is_as_loud_as_the_games_own_punch_at_its_loudest()
+        {
+            // Effect_HitRagdoll: the volume curves of Collision.Punch and Collision.PunchHeavy both top out at 0.6.
+            Assert.Equal(0.6f, GameSounds.PunchVolume);
+        }
+
+        [Fact]
+        public void Punches_take_turns_at_random_and_never_repeat()
+        {
+            var all = Enumerable.Repeat(true, GameSounds.Punch.Count).ToArray();
+            for (var last = 0; last < all.Length; last++)
+            {
+                var seen = new HashSet<int>(Rolls().Select(roll => GameSounds.Pick(all, -1, last, roll)));
+                Assert.DoesNotContain(last, seen);
+                Assert.Equal(all.Length - 1, seen.Count);
+            }
         }
 
         // ---- Throat Sound option ------------------------------------------------------------------

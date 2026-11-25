@@ -147,7 +147,7 @@ namespace ThroatBalls
                 return;
             }
             ModLog.Verbose("LOW BLOW | " + GameAdapters.Label(creature) + " | " + result.HitZone + Details(input, result) + Armor(creature, result));
-            reactions.OnLowBlow(creature, result.HitZone, Time.time);
+            reactions.OnLowBlow(creature, result.HitZone, input.ImpactSpeed, Time.time);
         }
 
         private static string Details(LowBlowInput input, LowBlowResult result)

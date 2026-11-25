@@ -14,7 +14,7 @@ dotnet build "$ROOT/src/ThroatBalls/ThroatBalls.csproj" -c Release -nologo -v q
 if [ $# -eq 0 ]; then
   set -- "$ROOT"/harness/*.txt
 fi
-# The runs use a copy of the mod with test sounds in Sounds/ (harness/fixtures): the release ships none.
+# The runs use a copy of the mod with the test sounds of harness/fixtures added to Sounds/, next to the shipped throat-choke.wav.
 STAGE="$ROOT/artifacts/harness-mod/ThroatBalls"
 rm -rf "$STAGE"
 mkdir -p "$(dirname "$STAGE")"

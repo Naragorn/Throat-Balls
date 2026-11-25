@@ -33,7 +33,7 @@ Open the book, go to **Mods**, pick **Throat Balls**. Changes apply at once.
 | Max Hit Angle | 100° | 30–180° | How far to his side you may stand. 180 = even from behind |
 | Drop Weapons | When They Go Down | When They Go Down, Always, Never | When he lets his weapons fall |
 | Sounds | on | | He gags, groans and gasps |
-| Own Sounds | on | | Plays your own sound files (see below). Off: the game's sounds |
+| Own Sounds | on | | Plays the sound files in the Sounds folder: the choke that comes with the mod and your own (see below). Off: the game's sounds |
 | Groan Interval | 3 s | 0–10 s | How often. 0 = only once |
 
 **Throat**
@@ -43,7 +43,9 @@ Open the book, go to **Mods**, pick **Throat Balls**. Changes apply at once.
 | Throat Hits | on | | Throat hits count |
 | Throat Reaction Chance | 100 % | 0–100 % | Chance a throat hit gets to him |
 | Throat Duration | 3 s | 1–15 s | How long he holds his throat |
-| Throat Sound | Random | Random, Sound 1–4 | Which of the game's four choke sounds he makes. Random: a different one each time |
+| Throat Sound | Random | Random, Sound 1–4 | Which of the game's four choke sounds he makes when Own Sounds is off. Random: a different one each time |
+| Punch Sound | on | | Adds one of the game's punch sounds to his first choke. The game plays its own hit sound as well |
+| Heavy Punch Speed | 4.5 m/s | 0–10 m/s | From this hit speed on, the punch sounds heavy. Slower hits get a light one |
 | Throat Zone Size | 9 cm | 3–15 cm | How big the throat spot is |
 | Throat Forward Offset | 5 cm | -5–15 cm | Moves the spot forward or back |
 | Throat Height Offset | 5 cm | -10–15 cm | Moves the spot up or down |
@@ -84,20 +86,25 @@ Open the book, go to **Mods**, pick **Throat Balls**. Changes apply at once.
 
 ## Sounds
 
-Hit on the throat, he chokes with one of the game's four choke sounds (Throat Sound picks one, or Random). Hit between the legs, he grunts with one of two of the game's hit sounds, then breathes hard.
+Hit on the throat, he chokes. The choke comes with the mod (`Sounds/throat-choke.wav`, from ZapSplat). His first choke also gets one of the game's punch sounds (Punch Sound). With Own Sounds off he chokes with one of the game's four choke sounds instead (Throat Sound picks one, or Random). Hit between the legs, he grunts with one of two of the game's hit sounds, then breathes hard.
 
 ### Your own sounds
 
-You can use your own sounds instead:
+You can add your own sounds:
 
 1. Open the `Sounds` folder inside the mod's folder.
-2. Put WAV files in it. Name them `throat...wav` for the choke (for example `throat-choke.wav`) and `groin...wav` for the "ow" (for example `groin-ow.wav`).
+2. Put WAV files in it. Name them `throat...wav` for the choke (for example `throat-gag.wav`) and `groin...wav` for the "ow" (for example `groin-ow.wav`).
 3. Start the game.
 
 - The throat sound plays when he is hit and again while he holds his throat. The groin sound plays once, when he is hit.
 - Several files per spot take turns.
 - Use WAV, 16-bit is safest. MP3 and OGG are not read.
+- Your throat files take turns with the choke that comes with the mod. Delete `throat-choke.wav` if you only want yours.
 - No files, or Own Sounds off: the game's sounds play.
+
+## Credits
+
+- Choke sound: ZapSplat (https://www.zapsplat.com)
 
 ## Works with
 

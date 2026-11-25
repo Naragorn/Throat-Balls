@@ -42,6 +42,12 @@ namespace ThroatBalls
         /// <summary>Plays the own files and the game clips from his head (<see cref="SoundBank"/>); made on the first one.</summary>
         public AudioSource Voice;
 
+        /// <summary>Plays the punch with the first choke (<see cref="SoundBank.PlayPunch"/>) on the Effect mixer; made on the first one.</summary>
+        public AudioSource Punch;
+
+        /// <summary>Impact speed (m/s) of the hit that started the reaction: light or heavy punch (<see cref="GameSounds.HeavyPunch"/>).</summary>
+        public float HitSpeed;
+
         /// <summary>Set when the reaction ended; the delayed wake-up only runs for this one.</summary>
         public int Generation;
     }

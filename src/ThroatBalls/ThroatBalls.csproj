@@ -63,15 +63,17 @@
   <ItemGroup>
     <None Include="manifest.json" />
     <None Include="Sounds/README.txt" />
+    <None Include="Sounds/throat-choke.wav" />
   </ItemGroup>
 
-  <!-- Mod folder layout the game's ModManager expects: manifest.json + *.dll (+ .pdb); Sounds/ holds the player's own WAV files. -->
+  <!-- Mod folder layout the game's ModManager expects: manifest.json + *.dll (+ .pdb); Sounds/ holds the choke the mod ships
+       (throat-choke.wav, ZapSplat) and the player's own WAV files. -->
   <Target Name="PackageMod" AfterTargets="Build">
     <ItemGroup>
       <ModFiles Include="$(TargetPath);$(TargetDir)$(TargetName).pdb;$(MSBuildThisFileDirectory)manifest.json" />
     </ItemGroup>
     <Copy SourceFiles="@(ModFiles)" DestinationFolder="$(DistDir)" SkipUnchangedFiles="true" />
-    <Copy SourceFiles="$(MSBuildThisFileDirectory)Sounds/README.txt" DestinationFolder="$(DistDir)/Sounds" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)Sounds/README.txt;$(MSBuildThisFileDirectory)Sounds/throat-choke.wav" DestinationFolder="$(DistDir)/Sounds" SkipUnchangedFiles="true" />
     <Message Importance="high" Text="Mod packaged: $(DistDir)" />
   </Target>
 
