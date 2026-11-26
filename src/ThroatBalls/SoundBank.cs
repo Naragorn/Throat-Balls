@@ -124,6 +124,7 @@ namespace ThroatBalls
             }
             player.Stop();
             player.clip = clip;
+            r.LastSoundLength = clip.length;
             player.Play();
             ModLog.Verbose("SOUND | " + GameAdapters.Label(r.Creature) + " | " + (source == SoundSource.Own ? "own " : "game ") + slot
                 + " '" + clip.name + "' (" + clip.length.ToString("0.0", CultureInfo.InvariantCulture) + " s)");

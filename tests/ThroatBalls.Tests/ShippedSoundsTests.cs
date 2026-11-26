@@ -6,8 +6,9 @@ using Xunit;
 namespace ThroatBalls.Tests
 {
     /// <summary>
-    /// The choke the release ships in Sounds/ (Nadi, 2026-11-25: "soll ins release"): the first two bursts of ZapSplat's
-    /// "Male choking, being strangled or dying vocal, gag. Version 9".
+    /// The choke the release ships in Sounds/ (Nadi, 2026-11-25: "soll ins release"): ZapSplat's "Male choking, being
+    /// strangled or dying vocal, gag. Version 9", its first two bursts and its last three, the 3 s between cut out
+    /// (Nadi, 2026-11-26: "nicht nur die ersten 2 spitzen, sondern auch die letzten 3 ... das dazwischen rausgeschnitten").
     /// </summary>
     public class ShippedSoundsTests
     {
@@ -25,8 +26,8 @@ namespace ThroatBalls.Tests
             Assert.True(WavReader.TryRead(File.ReadAllBytes(RepoFile(Choke)), out var wav, out var error), error);
             Assert.Equal(1, wav.Channels);
             Assert.Equal(48000, wav.SampleRate);
-            // 0.005 to 0.600 s of the original: the two bursts and a short fade.
-            Assert.InRange(wav.Samples.Length / (double)wav.SampleRate, 0.58, 0.61);
+            // 0.005 to 0.600 s and 3.520 to 4.475 s of the original, each with a short fade: 1.55 s.
+            Assert.InRange(wav.Samples.Length / (double)wav.SampleRate, 1.53, 1.57);
         }
 
         [Fact]

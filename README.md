@@ -30,11 +30,9 @@ Open the book, go to **Mods**, pick **Throat Balls**. Changes apply at once.
 | Metal Armor Protects | on | | Metal armor on the spot stops the hit |
 | Allowed Hits | Fists, Kicks, Blunt Weapons | Fists, Kicks, Blunt Weapons; Fists And Kicks Only; Any Hit, Blades Too | What can land the blow |
 | Min Hit Speed | 1.5 m/s | 0–6 m/s | How hard you must hit |
-| Max Hit Angle | 100° | 30–180° | How far to his side you may stand. 180 = even from behind |
 | Drop Weapons | When They Go Down | When They Go Down, Always, Never | When he lets his weapons fall |
 | Sounds | on | | He gags, groans and gasps |
 | Own Sounds | on | | Plays the sound files in the Sounds folder: the choke that comes with the mod and your own (see below). Off: the game's sounds |
-| Groan Interval | 3 s | 0–10 s | How often. 0 = only once |
 
 **Throat**
 
@@ -45,10 +43,7 @@ Open the book, go to **Mods**, pick **Throat Balls**. Changes apply at once.
 | Throat Duration | 3 s | 1–15 s | How long he holds his throat |
 | Throat Sound | Random | Random, Sound 1–4 | Which of the game's four choke sounds he makes when Own Sounds is off. Random: a different one each time |
 | Punch Sound | on | | Adds one of the game's punch sounds to his first choke. The game plays its own hit sound as well |
-| Heavy Punch Speed | 4.5 m/s | 0–10 m/s | From this hit speed on, the punch sounds heavy. Slower hits get a light one |
-| Throat Zone Size | 9 cm | 3–15 cm | How big the throat spot is |
-| Throat Forward Offset | 5 cm | -5–15 cm | Moves the spot forward or back |
-| Throat Height Offset | 5 cm | -10–15 cm | Moves the spot up or down |
+| Choke Repeats | 2 | 0–5 | How many more times he chokes after the first. He holds his throat until the last one ends |
 
 **Groin**
 
@@ -58,10 +53,6 @@ Open the book, go to **Mods**, pick **Throat Balls**. Changes apply at once.
 | Groin Reaction Chance | 100 % | 0–100 % | Chance a groin hit gets to him at all |
 | Groin Knockdown Chance | 50 % | 0–100 % | Chance a groin hit alone takes him down |
 | Groin Duration | 4 s | 1–15 s | How long he stays doubled over |
-| Groin Crouch Height | x0.6 | x0.3–x1 | How far he bends down |
-| Groin Zone Size | 9 cm | 3–20 cm | How big the groin spot is |
-| Groin Forward Offset | 8 cm | -5–20 cm | Moves the spot forward or back |
-| Groin Height Offset | -8 cm | -25–10 cm | Moves the spot up or down |
 
 **Going Down** (both hits in a row, or a groin hit alone)
 
@@ -73,9 +64,6 @@ Open the book, go to **Mods**, pick **Throat Balls**. Changes apply at once.
 | Time Between Hits | 4 s | 1–10 s | How soon the second hit must follow |
 | Down Duration | 8 s | 2–30 s | How long he stays down |
 | Fall Style | Curl Up | Curl Up, Ragdoll | Curl Up: he sinks down holding his groin. Ragdoll: he drops limp |
-| Lying Height | x0.2 | x0–x0.6 | Curl Up: how low he lies |
-| Fall Time | 1 s | 0.2–3 s | How long he takes to go down |
-| Get Up Time | 1.5 s | 0.5–4 s | How long he takes to get up |
 
 **Debug**
 
@@ -83,6 +71,26 @@ Open the book, go to **Mods**, pick **Throat Balls**. Changes apply at once.
 |---|---|---|
 | Debug Logging | off | Writes every hit to the game log, for bug reports |
 | Show Zones | off | Shows the throat and groin spots as colored balls, to adjust them |
+
+**Advanced**
+
+Fine tuning. The defaults fit most players.
+
+| Setting | Default | Range | What it does |
+|---|---|---|---|
+| Max Hit Angle | 100° | 30–180° | How far to his side you may stand. 180 = even from behind |
+| Heavy Punch Speed | 4.5 m/s | 0–10 m/s | From this hit speed on, the punch sounds heavy. Slower hits get a light one |
+| Groan Interval | 3 s | 0–10 s | How often he groans after a groin hit. 0 = only once |
+| Throat Zone Size | 9 cm | 3–15 cm | How big the throat spot is |
+| Throat Forward Offset | 5 cm | -5–15 cm | Moves the spot forward or back |
+| Throat Height Offset | 5 cm | -10–15 cm | Moves the spot up or down |
+| Groin Crouch Height | x0.6 | x0.3–x1 | How far he bends down |
+| Groin Zone Size | 9 cm | 3–20 cm | How big the groin spot is |
+| Groin Forward Offset | 8 cm | -5–20 cm | Moves the spot forward or back |
+| Groin Height Offset | -8 cm | -25–10 cm | Moves the spot up or down |
+| Lying Height | x0.2 | x0–x0.6 | Curl Up: how low he lies |
+| Fall Time | 1 s | 0.2–3 s | How long he takes to go down |
+| Get Up Time | 1.5 s | 0.5–4 s | How long he takes to get up |
 
 ## Sounds
 

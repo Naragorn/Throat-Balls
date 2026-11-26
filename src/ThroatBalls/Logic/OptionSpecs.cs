@@ -18,6 +18,10 @@ namespace ThroatBalls.Logic
         /// median of the seven counted hits of the headset session 2026-11-23 (2.3 to 10.2 m/s, median 4.3) on the
         /// slider's step.
         /// </summary>
+        /// <summary>How many more times the throat sound plays after the first (Nadi, 2026-11-26: "erstmal 2x einstellbar").</summary>
+        public static readonly FloatOptionSpec ChokeRepeats =
+            new FloatOptionSpec("Choke Repeats", 0f, 5f, 1f, 2f, OptionUnit.Plain);
+
         public static readonly FloatOptionSpec HeavyPunchSpeed =
             new FloatOptionSpec("Heavy Punch Speed", 0f, 10f, 0.5f, 4.5f, OptionUnit.MetersPerSecond);
 
@@ -91,6 +95,7 @@ namespace ThroatBalls.Logic
         {
             MinHitSpeed,
             HeavyPunchSpeed,
+            ChokeRepeats,
             MaxHitAngle,
             ThroatZoneSize,
             ThroatForwardOffset,

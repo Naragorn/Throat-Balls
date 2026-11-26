@@ -9,8 +9,8 @@ set-option ThroatBalls "Own Sounds" true
 set-option ThroatBalls "Throat Sound" Random
 set-option ThroatBalls "Punch Sound" true
 set-option ThroatBalls "Heavy Punch Speed" 4.5
-# Repeats every second: the two throat files take turns, so both play during the first reaction.
-set-option ThroatBalls "Groan Interval" 1
+# Two repeats after the first choke: the two throat files take turns, so both play during the first reaction.
+set-option ThroatBalls "Choke Repeats" 2
 # Chances pinned: a run must not depend on a roll.
 set-option ThroatBalls "Throat Reaction Chance" 1
 set-option ThroatBalls "Groin Reaction Chance" 1
@@ -39,7 +39,8 @@ expect-log | game punch 'SFX_punch_intens2_
 expect-log | heavy, hit 5.0 m/s
 wait 0.8
 screenshot throat-hands of=npc distance=1.6 height=1.5 angle=0
-await-log 5 | Throat end (time up)
+# He holds his throat until the third choke has ended (at most 1.55 + 0.6 + 0.4 + 0.6 + 1.55 s), longer than Throat Duration.
+await-log 8 | Throat end (time up)
 # The repeats took turns: the shipped choke played in the game, and so did the test tone.
 expect-log | own Throat 'throat-choke.wav'
 expect-log | own Throat 'throat-test.wav'
@@ -68,7 +69,7 @@ expect-no-log | own Throat
 expect-no-log | breathlessdeath
 expect-no-log | grappled
 
-# Throat Sound 2: always the second clip (Male_Shout-of-Pain_054), also on the repeat (Groan Interval 1 s).
+# Throat Sound 2: always the second clip (Male_Shout-of-Pain_054), also on the repeats (1.7 s, then 0.6 s quiet).
 set-option ThroatBalls "Throat Sound" "Sound 2"
 expect-option ThroatBalls "Throat Sound" "Sound 2"
 spawn-npc HumanMale distance=1.5 angle=-40 facing=0 brain=HumanDummy
@@ -87,8 +88,9 @@ expect-no-log | game Throat 'Male_Shout-of-Pain_072'
 expect-no-log | game Throat 'Male_Shout-of-Pain_087'
 expect-no-log | game punch
 
-# Punch Sound off: the choke alone.
+# Punch Sound off: the choke alone. Choke Repeats 0: only that one, and he lets go after Throat Duration (3 s).
 set-option ThroatBalls "Punch Sound" false
+set-option ThroatBalls "Choke Repeats" 0
 expect-option ThroatBalls "Punch Sound" false
 spawn-npc HumanMale distance=1.5 angle=80 facing=0 brain=HumanDummy
 mark
@@ -96,6 +98,10 @@ hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5
 expect-log | Throat start
 expect-log | game Throat 'Male_Shout-of-Pain_054'
 expect-no-log | game punch
+mark
+await-log 4 | Throat end (time up)
+expect-no-log | game Throat
+set-option ThroatBalls "Choke Repeats" 2
 
 # A lighter hit (3 m/s, under Heavy Punch Speed): a light punch.
 set-option ThroatBalls "Punch Sound" true
@@ -109,7 +115,7 @@ expect-no-log | game punch 'SFX_punch_intens2_
 # Options are saved in the run's prefix: give them back for the next scenarios.
 set-option ThroatBalls "Own Sounds" true
 set-option ThroatBalls "Throat Sound" Random
-set-option ThroatBalls "Groan Interval" 3
+set-option ThroatBalls "Choke Repeats" 2
 set-option ThroatBalls "Punch Sound" true
 expect-no-log Exception
 quit

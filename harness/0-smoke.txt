@@ -3,7 +3,7 @@
 # Run: tools/harness.sh harness/0-smoke.txt
 # Checks the defaults, so it must be the first scenario of a run (fresh prefix).
 wait-level
-expect-log [ModManager][ModOption][ThroatBalls] Loaded 38 ModOptions
+expect-log [ModManager][ModOption][ThroatBalls] Loaded 39 ModOptions
 expect-log [ThroatBalls] Loaded Throat Balls
 expect-log [ModManager][ThunderScript][ThroatBalls] Loaded ThunderScript: ThroatBalls.ThroatBallsScript
 expect-log [ThroatBalls] Enabled, listening to EventManager.onCreatureHit
@@ -24,37 +24,38 @@ option-exists ThroatBalls "Men Only" category="Throat Balls" type=Boolean save=t
 option-exists ThroatBalls "Metal Armor Protects" category="Throat Balls" type=Boolean save=true
 option-exists ThroatBalls "Allowed Hits" category="Throat Balls" save=true
 option-exists ThroatBalls "Min Hit Speed" category="Throat Balls" type=Single save=true
-option-exists ThroatBalls "Max Hit Angle" category="Throat Balls" type=Single save=true
+option-exists ThroatBalls "Max Hit Angle" category="Advanced" type=Single save=true
 option-exists ThroatBalls "Drop Weapons" category="Throat Balls" save=true
 option-exists ThroatBalls "Sounds" category="Throat Balls" type=Boolean save=true
 option-exists ThroatBalls "Own Sounds" category="Throat Balls" type=Boolean save=true
-option-exists ThroatBalls "Groan Interval" category="Throat Balls" type=Single save=true
+option-exists ThroatBalls "Groan Interval" category="Advanced" type=Single save=true
 option-exists ThroatBalls "Throat Hits" category="Throat" type=Boolean save=true
 option-exists ThroatBalls "Throat Reaction Chance" category="Throat" type=Single save=true
 option-exists ThroatBalls "Throat Duration" category="Throat" type=Single save=true
 option-exists ThroatBalls "Throat Sound" category="Throat" save=true
 option-exists ThroatBalls "Punch Sound" category="Throat" type=Boolean save=true
-option-exists ThroatBalls "Heavy Punch Speed" category="Throat" type=Single save=true
-option-exists ThroatBalls "Throat Zone Size" category="Throat" type=Single save=true
-option-exists ThroatBalls "Throat Forward Offset" category="Throat" type=Single save=true
-option-exists ThroatBalls "Throat Height Offset" category="Throat" type=Single save=true
+option-exists ThroatBalls "Heavy Punch Speed" category="Advanced" type=Single save=true
+option-exists ThroatBalls "Choke Repeats" category="Throat" type=Single save=true
+option-exists ThroatBalls "Throat Zone Size" category="Advanced" type=Single save=true
+option-exists ThroatBalls "Throat Forward Offset" category="Advanced" type=Single save=true
+option-exists ThroatBalls "Throat Height Offset" category="Advanced" type=Single save=true
 option-exists ThroatBalls "Groin Hits" category="Groin" type=Boolean save=true
 option-exists ThroatBalls "Groin Reaction Chance" category="Groin" type=Single save=true
 option-exists ThroatBalls "Groin Knockdown Chance" category="Groin" type=Single save=true
 option-exists ThroatBalls "Groin Duration" category="Groin" type=Single save=true
-option-exists ThroatBalls "Groin Crouch Height" category="Groin" type=Single save=true
-option-exists ThroatBalls "Groin Zone Size" category="Groin" type=Single save=true
-option-exists ThroatBalls "Groin Forward Offset" category="Groin" type=Single save=true
-option-exists ThroatBalls "Groin Height Offset" category="Groin" type=Single save=true
+option-exists ThroatBalls "Groin Crouch Height" category="Advanced" type=Single save=true
+option-exists ThroatBalls "Groin Zone Size" category="Advanced" type=Single save=true
+option-exists ThroatBalls "Groin Forward Offset" category="Advanced" type=Single save=true
+option-exists ThroatBalls "Groin Height Offset" category="Advanced" type=Single save=true
 option-exists ThroatBalls "Both Hits Take Him Down" category="Going Down" type=Boolean save=true
 option-exists ThroatBalls "Both Hits Knockdown Chance" category="Going Down" type=Single save=true
 option-exists ThroatBalls "Hit Order" category="Going Down" save=true
 option-exists ThroatBalls "Time Between Hits" category="Going Down" type=Single save=true
 option-exists ThroatBalls "Down Duration" category="Going Down" type=Single save=true
 option-exists ThroatBalls "Fall Style" category="Going Down" save=true
-option-exists ThroatBalls "Lying Height" category="Going Down" type=Single save=true
-option-exists ThroatBalls "Fall Time" category="Going Down" type=Single save=true
-option-exists ThroatBalls "Get Up Time" category="Going Down" type=Single save=true
+option-exists ThroatBalls "Lying Height" category="Advanced" type=Single save=true
+option-exists ThroatBalls "Fall Time" category="Advanced" type=Single save=true
+option-exists ThroatBalls "Get Up Time" category="Advanced" type=Single save=true
 option-exists ThroatBalls "Debug Logging" category="Debug" type=Boolean save=true
 option-exists ThroatBalls "Show Zones" category="Debug" type=Boolean save=true
 
@@ -71,6 +72,7 @@ expect-option ThroatBalls "Throat Zone Size" 0.09
 expect-option ThroatBalls "Throat Sound" Random
 expect-option ThroatBalls "Punch Sound" true
 expect-option ThroatBalls "Heavy Punch Speed" 4.5
+expect-option ThroatBalls "Choke Repeats" 2
 expect-option ThroatBalls "Groin Duration" 4
 expect-option ThroatBalls "Time Between Hits" 4
 expect-option ThroatBalls "Down Duration" 8

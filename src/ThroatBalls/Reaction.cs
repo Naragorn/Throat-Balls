@@ -39,6 +39,11 @@ namespace ThroatBalls
         public GameObject RightAnchor;
         public float LastGroanAt;
 
+        /// <summary>Throat sounds played in this reaction (the first at the hit) and the last one's length (<see cref="PoseRules.ChokeDue"/>).</summary>
+        public int Chokes;
+
+        public float LastSoundLength = PoseRules.UnknownChokeLength;
+
         /// <summary>Plays the own files and the game clips from his head (<see cref="SoundBank"/>); made on the first one.</summary>
         public AudioSource Voice;
 

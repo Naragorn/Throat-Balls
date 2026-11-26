@@ -2,7 +2,7 @@
 # (tools/harness.sh --as-shipped harness/films/sound.txt). Not one of the regression runs (tools/harness.sh runs
 # harness/*.txt only). The hits come through the game's damage code without a physics contact, so the game's own hit
 # sound is missing; what the films have is the mod's sound. Chances are pinned per film, the rest are the defaults
-# (Throat Duration 3 s, Groin Duration 4 s, Groan Interval 3 s, Time Between Hits 4 s, Down Duration 8 s).
+# (Choke Repeats 2, Throat Duration 3 s, Groin Duration 4 s, Groan Interval 3 s, Time Between Hits 4 s, Down Duration 8 s).
 # Between two films the man gets 5 s, so a hit never counts as the second of both hits by accident.
 wait-level
 set-option ThroatBalls "Throat Balls Enabled" true
@@ -26,7 +26,7 @@ hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5 swing=5
 expect-log | Throat start
 expect-log | own Throat 'throat-choke.wav'
 expect-log | heavy, hit 5.0 m/s
-await-log 6 | Throat end (time up)
+await-log 9 | Throat end (time up)
 wait 1
 record-stop
 wait 1
@@ -51,7 +51,7 @@ mark
 hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=3 swing=3
 expect-log | Throat start
 expect-log | light, hit 3.0 m/s
-await-log 6 | Throat end (time up)
+await-log 9 | Throat end (time up)
 wait 1
 record-stop
 wait 1
@@ -64,7 +64,7 @@ mark
 hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5 swing=5
 expect-log | Throat start
 expect-log | game Throat 'Male_Shout-of-Pain_0
-await-log 6 | Throat end (time up)
+await-log 9 | Throat end (time up)
 wait 1
 record-stop
 set-option ThroatBalls "Own Sounds" true

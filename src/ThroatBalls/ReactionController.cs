@@ -139,7 +139,23 @@ namespace ThroatBalls
             }
             // As the game's own stun does every frame: no walking on while out of it.
             creature.locomotion.moveDirection = UnityEngine.Vector3.zero;
-            if (ModOptions.Sounds && PoseRules.GroanDue(r.LastGroanAt, now, ModOptions.GroanInterval))
+            if (!ModOptions.Sounds)
+            {
+                return;
+            }
+            if (kind == ReactionKind.Throat)
+            {
+                // The throat sound again Choke Repeats times, each after the last one and a pause; he holds his throat until the last ends.
+                var repeats = (int)ModOptions.ChokeRepeats;
+                if (PoseRules.ChokeDue(r.Chokes, repeats, now - r.LastGroanAt, r.LastSoundLength))
+                {
+                    r.LastGroanAt = now;
+                    r.Chokes++;
+                    Voice(r, kind, repeat: true);
+                }
+                r.State.Until = System.Math.Max(r.State.Until, PoseRules.ChokesEnd(r.LastGroanAt, r.Chokes, repeats, r.LastSoundLength));
+            }
+            else if (PoseRules.GroanDue(r.LastGroanAt, now, ModOptions.GroanInterval))
             {
                 r.LastGroanAt = now;
                 Voice(r, kind, repeat: true);
@@ -151,10 +167,12 @@ namespace ThroatBalls
             var kind = r.State.Kind;
             var creature = r.Creature;
             r.Generation++;
+            r.LastSoundLength = PoseRules.UnknownChokeLength;
             if (ModOptions.Sounds)
             {
                 Voice(r, kind, repeat: false);
             }
+            r.Chokes = 1;
             r.LastGroanAt = now;
             var drops = PoseRules.DropsWeapons(kind, ModOptions.DropWeapons);
             if (drops)

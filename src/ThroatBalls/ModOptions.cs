@@ -22,6 +22,7 @@ namespace ThroatBalls
         private const string GroinCategory = "Groin";
         private const string ComboCategory = "Going Down";
         private const string DebugCategory = "Debug";
+        private const string AdvancedCategory = "Advanced";
 
         // ---- Throat Balls ------------------------------------------------------------
 
@@ -52,29 +53,29 @@ namespace ThroatBalls
         public static float MinHitSpeed = OptionSpecs.MinHitSpeed.Default;
 
         [ModOption("Max Hit Angle", "How far to the side of him you may stand. 90 = from his side, 180 = from anywhere, even behind.", nameof(MaxHitAngleValues))]
-        [ModOptionCategory(MainCategory, 0)]
-        [ModOptionOrder(5)]
+        [ModOptionCategory(AdvancedCategory, 10)]
+        [ModOptionOrder(0)]
         [ModOptionSlider]
         public static float MaxHitAngle = OptionSpecs.MaxHitAngle.Default;
 
         [ModOption("Drop Weapons", "When he lets his weapons fall. When They Go Down: only when he goes to the ground.")]
         [ModOptionCategory(MainCategory, 0)]
-        [ModOptionOrder(6)]
+        [ModOptionOrder(5)]
         public static DropWeapons DropWeapons = DropWeapons.WhenTheyGoDown;
 
         [ModOption("Sounds", "He gags, groans and gasps.")]
         [ModOptionCategory(MainCategory, 0)]
-        [ModOptionOrder(7)]
+        [ModOptionOrder(6)]
         public static bool Sounds = true;
 
         [ModOption("Own Sounds", "Plays the sound files in the mod's Sounds folder: throat*.wav when he chokes (the mod brings one), groin*.wav for the ow. Off, or no files: the game's sounds.")]
         [ModOptionCategory(MainCategory, 0)]
-        [ModOptionOrder(8)]
+        [ModOptionOrder(7)]
         public static bool PlayOwnSounds = true;
 
-        [ModOption("Groan Interval", "How often he gags or groans while it lasts. 0 = only once, when hit.", nameof(GroanIntervalValues))]
-        [ModOptionCategory(MainCategory, 0)]
-        [ModOptionOrder(9)]
+        [ModOption("Groan Interval", "How often he groans and breathes hard after a groin hit. 0 = only once, when hit. The throat uses Choke Repeats.", nameof(GroanIntervalValues))]
+        [ModOptionCategory(AdvancedCategory, 10)]
+        [ModOptionOrder(2)]
         [ModOptionSlider]
         public static float GroanInterval = OptionSpecs.GroanInterval.Default;
 
@@ -108,26 +109,31 @@ namespace ThroatBalls
         public static bool PunchSound = true;
 
         [ModOption("Heavy Punch Speed", "From this hit speed on, the punch sounds heavy. Slower hits get a light one.", nameof(HeavyPunchSpeedValues))]
-        [ModOptionCategory(ThroatCategory, 1)]
-        [ModOptionOrder(5)]
+        [ModOptionCategory(AdvancedCategory, 10)]
+        [ModOptionOrder(1)]
         [ModOptionSlider]
         public static float HeavyPunchSpeed = OptionSpecs.HeavyPunchSpeed.Default;
 
-        [ModOption("Throat Zone Size", "How big the spot is that counts as the throat.", nameof(ThroatZoneSizeValues))]
+        [ModOption("Choke Repeats", "How many more times he chokes after the first. He holds his throat until the last one ends.", nameof(ChokeRepeatsValues))]
         [ModOptionCategory(ThroatCategory, 1)]
-        [ModOptionOrder(6)]
+        [ModOptionOrder(5)]
+        public static float ChokeRepeats = OptionSpecs.ChokeRepeats.Default;
+
+        [ModOption("Throat Zone Size", "How big the spot is that counts as the throat.", nameof(ThroatZoneSizeValues))]
+        [ModOptionCategory(AdvancedCategory, 10)]
+        [ModOptionOrder(3)]
         [ModOptionSlider]
         public static float ThroatZoneSize = OptionSpecs.ThroatZoneSize.Default;
 
         [ModOption("Throat Forward Offset", "Moves the throat spot forward or back. Turn on Show Zones to see it.", nameof(ThroatForwardOffsetValues))]
-        [ModOptionCategory(ThroatCategory, 1)]
-        [ModOptionOrder(7)]
+        [ModOptionCategory(AdvancedCategory, 10)]
+        [ModOptionOrder(4)]
         [ModOptionSlider]
         public static float ThroatForwardOffset = OptionSpecs.ThroatForwardOffset.Default;
 
         [ModOption("Throat Height Offset", "Moves the throat spot up or down. Turn on Show Zones to see it.", nameof(ThroatHeightOffsetValues))]
-        [ModOptionCategory(ThroatCategory, 1)]
-        [ModOptionOrder(8)]
+        [ModOptionCategory(AdvancedCategory, 10)]
+        [ModOptionOrder(5)]
         [ModOptionSlider]
         public static float ThroatHeightOffset = OptionSpecs.ThroatHeightOffset.Default;
 
@@ -157,26 +163,26 @@ namespace ThroatBalls
         public static float GroinDuration = OptionSpecs.GroinDuration.Default;
 
         [ModOption("Groin Crouch Height", "How far he bends down. 1 = he stays upright.", nameof(GroinCrouchHeightValues))]
-        [ModOptionCategory(GroinCategory, 2)]
-        [ModOptionOrder(4)]
+        [ModOptionCategory(AdvancedCategory, 10)]
+        [ModOptionOrder(6)]
         [ModOptionSlider]
         public static float GroinCrouchHeight = OptionSpecs.GroinCrouchHeight.Default;
 
         [ModOption("Groin Zone Size", "How big the spot is that counts as the groin.", nameof(GroinZoneSizeValues))]
-        [ModOptionCategory(GroinCategory, 2)]
-        [ModOptionOrder(5)]
+        [ModOptionCategory(AdvancedCategory, 10)]
+        [ModOptionOrder(7)]
         [ModOptionSlider]
         public static float GroinZoneSize = OptionSpecs.GroinZoneSize.Default;
 
         [ModOption("Groin Forward Offset", "Moves the groin spot forward or back. Turn on Show Zones to see it.", nameof(GroinForwardOffsetValues))]
-        [ModOptionCategory(GroinCategory, 2)]
-        [ModOptionOrder(6)]
+        [ModOptionCategory(AdvancedCategory, 10)]
+        [ModOptionOrder(8)]
         [ModOptionSlider]
         public static float GroinForwardOffset = OptionSpecs.GroinForwardOffset.Default;
 
         [ModOption("Groin Height Offset", "Moves the groin spot up or down. Turn on Show Zones to see it.", nameof(GroinHeightOffsetValues))]
-        [ModOptionCategory(GroinCategory, 2)]
-        [ModOptionOrder(7)]
+        [ModOptionCategory(AdvancedCategory, 10)]
+        [ModOptionOrder(9)]
         [ModOptionSlider]
         public static float GroinHeightOffset = OptionSpecs.GroinHeightOffset.Default;
 
@@ -216,20 +222,20 @@ namespace ThroatBalls
         public static FallStyle FallStyle = FallStyle.CurlUp;
 
         [ModOption("Lying Height", "Curl Up: how low he lies. 0 = flat on the ground.", nameof(LyingHeightValues))]
-        [ModOptionCategory(ComboCategory, 3)]
-        [ModOptionOrder(6)]
+        [ModOptionCategory(AdvancedCategory, 10)]
+        [ModOptionOrder(10)]
         [ModOptionSlider]
         public static float LyingHeight = OptionSpecs.LyingHeight.Default;
 
         [ModOption("Fall Time", "How long it takes him to go down.", nameof(FallTimeValues))]
-        [ModOptionCategory(ComboCategory, 3)]
-        [ModOptionOrder(7)]
+        [ModOptionCategory(AdvancedCategory, 10)]
+        [ModOptionOrder(11)]
         [ModOptionSlider]
         public static float FallTime = OptionSpecs.FallTime.Default;
 
         [ModOption("Get Up Time", "How long it takes him to get back up at the end.", nameof(GetUpTimeValues))]
-        [ModOptionCategory(ComboCategory, 3)]
-        [ModOptionOrder(8)]
+        [ModOptionCategory(AdvancedCategory, 10)]
+        [ModOptionOrder(12)]
         [ModOptionSlider]
         public static float GetUpTime = OptionSpecs.GetUpTime.Default;
 
@@ -306,6 +312,8 @@ namespace ThroatBalls
 
         public static ModOptionParameter[] MinHitSpeedValues() => ToParameters(OptionSpecs.MinHitSpeed);
         public static ModOptionParameter[] HeavyPunchSpeedValues() => ToParameters(OptionSpecs.HeavyPunchSpeed);
+
+        public static ModOptionParameter[] ChokeRepeatsValues() => ToParameters(OptionSpecs.ChokeRepeats);
 
         public static ModOptionParameter[] MaxHitAngleValues() => ToParameters(OptionSpecs.MaxHitAngle);
 

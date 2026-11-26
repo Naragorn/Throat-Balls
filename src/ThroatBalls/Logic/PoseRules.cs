@@ -164,6 +164,28 @@ namespace ThroatBalls.Logic
             }
         }
 
+        /// <summary>Quiet between the end of one choke and the next (Nadi 2026-11-26: "mit entsprechenden abständen").</summary>
+        public const float ChokePause = 0.6f;
+
+        /// <summary>How long a choke counts when its length is unknown (the voice's own line): about the shipped file's.</summary>
+        public const float UnknownChokeLength = 1.5f;
+
+        /// <summary>
+        /// Another throat sound is due: <paramref name="played"/> so far (the first at the hit) is at most
+        /// <paramref name="repeats"/>, and the last one (<paramref name="lastLength"/> s) plus <see cref="ChokePause"/> is over.
+        /// </summary>
+        public static bool ChokeDue(int played, int repeats, float sinceLast, float lastLength)
+        {
+            return played >= 1 && played <= repeats && sinceLast >= lastLength + ChokePause;
+        }
+
+        /// <summary>When the last of the throat sounds ends, the last one having started at <paramref name="lastAt"/>: the throat reaction lasts at least that long.</summary>
+        public static float ChokesEnd(float lastAt, int played, int repeats, float lastLength)
+        {
+            var left = System.Math.Max(0, repeats + 1 - played);
+            return lastAt + lastLength + (left * (ChokePause + lastLength));
+        }
+
         public static bool GroanDue(float lastGroanAt, float now, float interval)
         {
             return interval > 0f && now - lastGroanAt >= interval;
