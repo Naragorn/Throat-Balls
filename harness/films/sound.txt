@@ -1,0 +1,39 @@
+# Films with sound, for listening: one punch on the Adam's apple, then one between the legs, on the same man,
+# with the mod as it ships (tools/harness.sh --as-shipped harness/films/sound.txt). Not one of the regression
+# runs (tools/harness.sh runs harness/*.txt only). The hits come through the game's damage code without a physics
+# contact, so the game's own hit sound is missing; what the films have is the mod's sound.
+wait-level
+set-option ThroatBalls "Throat Balls Enabled" true
+set-option ThroatBalls "Debug Logging" true
+# Chances pinned so both reactions show; the rest are the defaults.
+set-option ThroatBalls "Throat Reaction Chance" 1
+set-option ThroatBalls "Groin Reaction Chance" 1
+set-option ThroatBalls "Groin Knockdown Chance" 0
+set-option ThroatBalls "Metal Armor Protects" false
+frame-rate 90
+
+spawn-npc HumanMale distance=1.0 facing=0 brain=HumanDummy
+wait 1
+record-start throat-sound fps=30 width=960 height=540 views=side,npc distance=1.6 rise=1.3 angle=30 audio=true
+wait 0.8
+mark
+hit-npc Neck at=0,0.05,0.05 type=Blunt velocity=5 swing=5
+expect-log | Throat start
+expect-log | own Throat 'throat-choke.wav'
+expect-log | game punch 'SFX_punch_intens2_
+await-log 6 | Throat end (time up)
+wait 1
+record-stop
+
+# Past Time Between Hits (4 s from the throat hit), so the groin hit is a groin reaction of its own.
+wait 1
+record-start groin-sound fps=30 width=960 height=540 views=side,npc distance=1.8 rise=1.0 angle=60 audio=true
+wait 0.8
+mark
+hit-npc Torso section=Lower at=0,-0.08,0.08 type=Blunt velocity=5 swing=5
+expect-log | Groin start
+expect-log | game Groin '
+expect-no-log | Down start
+await-log 7 | Groin end (time up)
+wait 1
+record-stop
