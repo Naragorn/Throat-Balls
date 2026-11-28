@@ -38,6 +38,10 @@
       <HintPath>$(BasManagedDir)/ThunderRoad.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="ThunderRoad.Utilities">
+      <HintPath>$(BasManagedDir)/ThunderRoad.Utilities.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>$(BasManagedDir)/UnityEngine.dll</HintPath>
       <Private>false</Private>

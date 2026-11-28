@@ -26,8 +26,27 @@ namespace ThroatBalls
                 return;
             }
             r.TreeWasRunning = brain.instance.updateTree;
-            SkillDiscombobulate.BrainToggle(r.Creature, conscious: false);
+            SkillDiscombobulate.BrainToggle(r.Creature, conscious: false, toggleHitReaction: KnockOutRules.ToggleHitReaction);
+            ResyncBusy(r.Creature);
             r.BrainOff = true;
+        }
+
+        /// <summary>The cut stagger set IsBusy by hand for a hit animation that never runs: back to the game's own count (<see cref="KnockOutRules"/>).</summary>
+        private static void ResyncBusy(Creature creature)
+        {
+            var animator = creature.animator;
+            if (animator == null)
+            {
+                return;
+            }
+            var hasCount = ThunderRoad.Utilities.BusyState.animatorBusyStates.TryGetValue(animator, out var count);
+            var busy = KnockOutRules.BusyAfterKnockOut(hasCount, count);
+            var was = creature.IsAnimatorBusy();
+            if (was != busy)
+            {
+                creature.SetAnimatorBusy(busy);
+                ModLog.Verbose("BRAIN | " + GameAdapters.Label(creature) + " | busy flag " + was + " -> " + busy + " (busy states " + count + ")");
+            }
         }
 
         /// <summary>Brain back on now (despawn, death: the game's stun wakes a stunned NPC that died, too), with its tree as it was.</summary>

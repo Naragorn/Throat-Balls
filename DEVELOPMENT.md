@@ -22,6 +22,23 @@ Everything about how the mod is built and tested: versions, the game APIs used a
 
 The headless runs and one headset session (2026-11-23) are the in-game evidence so far. Every other "verified" below means read in the decompiled DLL and compiled against it.
 
+## Bug: NPCs stood still after a reaction (fixed in 0.6.1)
+
+- Seen: Windows run 2026-11-28 (`Player.log`). After a groin or throat reaction ended, NPCs did not turn, walk or attack.
+  HumanMale8 (`#-289242`, groin down until 11:59:27): yaw stays 45.7 from 11:59:42 to 11:59:47 while the player walks from -7 to 44 deg (AchillesTendon watch lines).
+  HumanMale6 (`#-291756`, throat until 11:57:58): `busy=True`, no turn requests, 11:58:09 to 11:58:20.
+  No NPC swung a weapon after the first reaction at 11:57:37 (DMCS logs every swing, last at 11:57:00).
+- Cause (read in ThunderRoad 1.3.2): `Creature.Damage` fires `OnDamageEvent(OnEnd)` before `EventManager.onCreatureHit(OnEnd)`.
+  So `BrainModuleHitReaction.TryPush` has often started `StaggerCoroutine` before the mod reacts. That coroutine sets `brain.currentStagger`, the `Hit` trigger and `SetAnimatorBusy(true)` by hand.
+  The mod's `BrainToggle(false)` then runs `StopStagger`: it stops the coroutine and resets `Hit`, so the hit animation never plays. Without the toggle flag, it also puts `currentStagger` back.
+  `IsBusy` is normally cleared by `ThunderRoad.Utilities.BusyState` when a busy state exits. No busy state ran, so it stayed true: `MoveTo`, `TurnTo`, `AttackMelee`, `DrawItem` and `PickupItem` fail. The stuck `currentStagger` turns off `canDodge` and `canBlock`.
+  The game's own stun (`SkillDiscombobulate`) works on `OnStart`, before the stagger starts, and so avoids this.
+- Also: `BrainToggle(true)` calls `OnBrainStart` on every module, but `BrainToggle(false)` without `toggleHitReaction` skips `OnBrainStop` on the hit reaction. Each reaction added one more `OnDamage` subscription, so every later hit was pushed twice, then three times.
+- Fix (`ReactionBody.KnockOut`, `Logic/KnockOutRules.cs`): `BrainToggle(false, toggleHitReaction: true)` stops the hit reaction with the brain. That clears `currentStagger` and its subscriptions, and waking subscribes them once. After the toggle, `IsBusy` is set by the game's own rule, `BusyState.animatorBusyStates[animator] > 0`. This logs `BRAIN | ... | busy flag True -> False`.
+- Side effect: while he reacts, later hits no longer play the game's stagger on top of the pose (the hit reaction is off with the brain).
+- Not verified in the game yet: run the harness on Linux, or check in the headset.
+- Open risk, not seen in this run: `WakeNow` puts back `updateTree` as it was at the hit. DMCS (kneel, back off) and HJ_Threat (panic) pause the tree for a while. If their release falls inside a reaction, the tree stays paused.
+
 ## Versions
 
 | What | Version | Source |
